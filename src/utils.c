@@ -3,3 +3,12 @@
 */
 
 #include "utils.h"
+
+#include <ctype.h>
+
+void skip_whitespace(char** input) {
+    while (**input != '\0' && isspace(**input)) {
+        (*input)++;
+    }
+}
+

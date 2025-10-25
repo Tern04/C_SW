@@ -5,4 +5,6 @@
 #ifndef C_SW_UTILS_H
 #define C_SW_UTILS_H
 
+void skip_whitespace(char** input);
+
 #endif /* C_SW_UTILS_H */
