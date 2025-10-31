@@ -5,6 +5,8 @@
 #ifndef C_SW_TOKENIZER_H
 #define C_SW_TOKENIZER_H
 
+#include <stddef.h>
+
 typedef enum {
     TOKEN_SYMBOL,
     TOKEN_NUMBER,
@@ -23,7 +25,7 @@ typedef struct {
 
 typedef struct {
     char* input;
-    int index;
+    size_t index;
     Token current_token;
 }Tokenizer;
 
