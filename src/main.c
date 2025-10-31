@@ -6,8 +6,9 @@
 #include <string.h>
 
 #include "file_io.h"
+#include "utils.h"
 
-int setup(const int argc, char* argv[], const char** input_file) {
+int setup(int argc, char* argv[], const char** input_file) {
     int i;
     struct stat buffer;
 
@@ -40,10 +41,13 @@ int setup(const int argc, char* argv[], const char** input_file) {
     return 0;
 }
 
-int main(const int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
     const char* input_file;
 
     setup(argc, argv, &input_file);
+
+    /* Call cleanup before program exit */
+    program_cleanup();
 
     return 0;
 }
