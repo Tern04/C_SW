@@ -10,13 +10,14 @@
 
 int load_input_file(const char* filename) {
     FILE* file;
+    char line[256];
+
 
     file = fopen(filename, "r");
     if (file == NULL) {
         return -1;
     }
 
-    char line[256];
 
     while (fgets(line, sizeof(line), file)) {
         printf("%s", line);
