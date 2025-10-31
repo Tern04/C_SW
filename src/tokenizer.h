@@ -32,6 +32,7 @@ Token tokenizer_peek(Tokenizer* tokenizer);
 TokenType tokenizer_process_token_type(Tokenizer* tokenizer);
 void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token);
 Token tokenizer_get_token(Tokenizer* tokenizer);
+void token_cleanup(Token* token);
 void tokenizer_cleanup(Tokenizer* tokenizer);
 
 
