@@ -5,6 +5,10 @@
 #ifndef C_SW_UTILS_H
 #define C_SW_UTILS_H
 
+#include "tokenizer.h"
+
 void skip_whitespace(char** input);
+void print_token(Token token);
+void program_cleanup(void);
 
 #endif /* C_SW_UTILS_H */
