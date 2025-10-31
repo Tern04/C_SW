@@ -53,12 +53,67 @@ TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
 }
 
 void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
+    char* start;
+    char* end;
+    size_t length;
+
     switch (token->type) {
         case TOKEN_ERROR:
             exit(-1);
         case TOKEN_END:
             break;
-
+        case TOKEN_LBRACKET:
+        case TOKEN_RBRACKET:
+            /* Single character tokens */
+            token->text = malloc(2);
+            token->text[0] = tokenizer->input[tokenizer->index];
+            token->text[1] = '\0';
+            tokenizer->index++;
+            break;
+        case TOKEN_STRING:
+            /* Parse string literal */
+            tokenizer->index++; /* Skip opening quote */
+            start = &tokenizer->input[tokenizer->index];
+            end = start;
+            while (*end != '"' && *end != '\0') {
+                end++;
+            }
+            if (*end == '\0') {
+                token->type = TOKEN_ERROR;
+                return;
+            }
+            length = end - start;
+            token->text = malloc(length + 1);
+            strncpy(token->text, start, length);
+            token->text[length] = '\0';
+            tokenizer->index = (end - tokenizer->input) + 1; /* Skip closing quote */
+            break;
+        case TOKEN_NUMBER:
+            /* Parse number */
+            start = &tokenizer->input[tokenizer->index];
+            token->number_value = strtol(start, &end, 10);
+            length = end - start;
+            token->text = malloc(length + 1);
+            strncpy(token->text, start, length);
+            token->text[length] = '\0';
+            tokenizer->index = end - tokenizer->input;
+            break;
+        case TOKEN_SYMBOL:
+            /* Parse symbol/identifier */
+            start = &tokenizer->input[tokenizer->index];
+            end = start;
+            while (*end != '\0' && !isspace(*end) && *end != '(' && *end != ')' && *end != '"') {
+                end++;
+            }
+            length = end - start;
+            token->text = malloc(length + 1);
+            strncpy(token->text, start, length);
+            token->text[length] = '\0';
+            tokenizer->index = end - tokenizer->input;
+            break;
+        default:
+            tokenizer->index++;
+            break;
     }
 }
 
@@ -66,13 +121,15 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
 
 Token tokenizer_get_token(Tokenizer* tokenizer) {
     Token token;
-    char* current;
-    char t;
+    char* input_ptr;
+
     token.text = NULL;
     token.number_value = 0;
 
-    current = &tokenizer->input[tokenizer->index];
-    skip_whitespace(&current);
+    /* Skip whitespace first */
+    input_ptr = &tokenizer->input[tokenizer->index];
+    skip_whitespace(&input_ptr);
+    tokenizer->index = input_ptr - tokenizer->input;
 
     token.type = tokenizer_process_token_type(tokenizer);
 
@@ -80,6 +137,13 @@ Token tokenizer_get_token(Tokenizer* tokenizer) {
 
     return token;
 
+}
+
+void token_cleanup(Token* token) {
+    if (token && token->text) {
+        free(token->text);
+        token->text = NULL;
+    }
 }
 
 void tokenizer_cleanup(Tokenizer* tokenizer) {
