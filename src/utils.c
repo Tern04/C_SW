@@ -6,6 +6,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "tokenizer.h"
 
@@ -43,7 +44,7 @@ void print_token(Token token) {
     printf(", text: \"%s\"\n", token.text ? token.text : "NULL");
 }
 
-void program_cleanup(void) {
+void program_cleanup(char* file_content) {
+    free(file_content);
 
-        
 }

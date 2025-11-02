@@ -9,6 +9,6 @@
 
 void skip_whitespace(char** input);
 void print_token(Token token);
-void program_cleanup(void);
+void program_cleanup(char* file_content);
 
 #endif /* C_SW_UTILS_H */
