@@ -6,23 +6,47 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 
 
-int load_input_file(const char* filename) {
+char* load_input_file(const char* filename) {
     FILE* file;
-    char line[256];
-
+    long length;
+    char* content;
+    size_t size;
 
     file = fopen(filename, "r");
     if (file == NULL) {
-        return -1;
+        fprintf(stderr, "Error: Could not open file %s\n", filename);
+        return NULL;
     }
 
-
-    while (fgets(line, sizeof(line), file)) {
-        printf("%s", line);
+    if (fseek(file, 0, SEEK_END) != 0) {
+        fprintf(stderr, "Error: Could not seek to end of file %s\n", filename);
+        fclose(file);
+        return NULL;
     }
+
+    length = ftell(file);
+
+    if (length < 0) {
+        fprintf(stderr, "Error: Could not get length of file %s\n", filename);
+        fclose(file);
+        return NULL;
+    }
+
+    rewind(file);
+    content = malloc((size_t)length + 1);
+
+    if (content == NULL) {
+        fprintf(stderr, "Error: Memory allocation failed\n");
+        fclose(file);
+        return NULL;
+    }
+
+    size = fread(content, 1, (size_t)length, file);
+    content[size] = '\0';
 
     fclose(file);
-    return 0;
+    return content;
 }

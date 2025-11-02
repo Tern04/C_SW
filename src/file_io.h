@@ -8,8 +8,8 @@
 /**
  *
  * @param filename Name of the input file
- * @return 0 if a file was loaded successfully otherwise exit the program
+ * @return content of an input file
  */
-int load_input_file(const char* filename);
+char* load_input_file(const char* filename);
 
 #endif /* C_SW_FILE_IO_H */
