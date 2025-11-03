@@ -24,4 +24,9 @@ typedef struct Node {
     }value;
 }Node;
 
+Node* create_int_node(long value);
+Node* create_string_node(const char* text);
+Node* create_symbol_node(const char* text);
+Node* create_list_node(void);
+
 #endif /* C_SW_S_EXP_H */
