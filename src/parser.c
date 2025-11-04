@@ -9,18 +9,13 @@ Node* parse_expression(Tokenizer* tokenizer) {
     Node* node;
 
     node = NULL;
-
     token = tokenizer_get_token(tokenizer);
 
     switch (token.type) {
         case TOKEN_NUMBER:
-            node = create_int_node(token.number_value);
-            break;
         case TOKEN_STRING:
-            node = create_string_node(token.text);
-            break;
         case TOKEN_SYMBOL:
-            node = create_symbol_node(token.text);
+            node = parse_atom(token);
             break;
         case TOKEN_LBRACKET:
             node = parse_list(tokenizer);
@@ -31,17 +26,45 @@ Node* parse_expression(Tokenizer* tokenizer) {
         case TOKEN_ERROR:
             printf("Syntax error, invalid token\n");
             return NULL;
+        case TOKEN_END:
+            printf("Unexpected end of input\n");
+            return NULL;
         default:
             printf("Unexpected token type\n");
             break;
     }
 
     if (node == NULL) {
-        printf("Parse error, value of node is NULL");
+        printf("Parse error, value of node is NULL\n");
     }
 
     return node;
 
+}
+
+Node* parse_atom(Token token) {
+    Node* node;
+    node = NULL;
+
+    switch (token.type) {
+        case TOKEN_NUMBER:
+            node = create_int_node(token.number_value);
+            break;
+
+        case TOKEN_STRING:
+            node = create_string_node(token.text);
+            break;
+
+        case TOKEN_SYMBOL:
+            node = create_symbol_node(token.text);
+            break;
+
+        default:
+            fprintf(stderr, "Syntax error: unexpected atom token\n");
+            break;
+    }
+
+    return node;
 }
 
 Node* parse_list(Tokenizer* tokenizer) {
