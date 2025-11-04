@@ -9,6 +9,7 @@
 #include "file_io.h"
 #include "utils.h"
 #include "tokenizer.h"
+#include "parser.h"
 
 typedef enum {
     MODE_INTERACTIVE,
@@ -21,6 +22,7 @@ void run_interactive_mode(void) {
     char input_line[1024];
     Tokenizer tokenizer;
     Token token;
+    Node* ast;
 
     printf("Interactive mode - enter expressions (Ctrl+C to exit):\n");
 
@@ -39,7 +41,7 @@ void run_interactive_mode(void) {
             continue;
         }
 
-        /* Tokenize and print */
+        /* First tokenize and print tokens */
         tokenizer_init(&tokenizer, input_line);
         printf("Tokens: \n");
         do {
@@ -47,7 +49,20 @@ void run_interactive_mode(void) {
             print_token(token);
             token_cleanup(&token);
         } while (token.type != TOKEN_END && token.type != TOKEN_ERROR);
-        printf("\n");
+        tokenizer_cleanup(&tokenizer);
+
+        /* Then parse and print AST */
+        tokenizer_init(&tokenizer, input_line);
+        ast = parse_expression(&tokenizer);
+
+        if (ast) {
+            printf("AST: ");
+            print_node(ast);
+            printf("\n\n");
+            node_cleanup(ast);
+        } else {
+            printf("Parse error\n\n");
+        }
 
         tokenizer_cleanup(&tokenizer);
     }
@@ -56,18 +71,37 @@ void run_interactive_mode(void) {
 void run_batch_mode(char* file_content) {
     Tokenizer tokenizer;
     Token token;
+    Node* ast;
 
     printf("Batch mode - processing file...\n");
     printf("File content: %s\n\n", file_content);
 
-
+    /* First tokenize and print all tokens */
     tokenizer_init(&tokenizer, file_content);
-
+    printf("Tokens:\n");
     do {
         token = tokenizer_get_token(&tokenizer);
         print_token(token);
         token_cleanup(&token);
     } while (token.type != TOKEN_END && token.type != TOKEN_ERROR);
+    tokenizer_cleanup(&tokenizer);
+
+    /* Then parse and print AST for each expression */
+    tokenizer_init(&tokenizer, file_content);
+    printf("\nParsed expressions:\n");
+
+    while (1) {
+        ast = parse_expression(&tokenizer);
+        if (!ast) {
+            break;
+        }
+
+        printf("Expression: ");
+        print_node(ast);
+        printf("\n");
+
+        node_cleanup(ast);
+    }
 
     tokenizer_cleanup(&tokenizer);
 }
@@ -75,18 +109,37 @@ void run_batch_mode(char* file_content) {
 void run_verbose_batch_mode(char* file_content) {
     Tokenizer tokenizer;
     Token token;
+    Node* ast;
 
     printf("Verbose batch mode - processing file with output...\n");
     printf("File content: %s\n\n", file_content);
 
+    /* First tokenize and print all tokens */
     tokenizer_init(&tokenizer, file_content);
-
     printf("Tokens:\n");
     do {
         token = tokenizer_get_token(&tokenizer);
         print_token(token);
         token_cleanup(&token);
     } while (token.type != TOKEN_END && token.type != TOKEN_ERROR);
+    tokenizer_cleanup(&tokenizer);
+
+    /* Then parse and print AST for each expression */
+    tokenizer_init(&tokenizer, file_content);
+    printf("\nParsed expressions:\n");
+
+    while (1) {
+        ast = parse_expression(&tokenizer);
+        if (!ast) {
+            break;
+        }
+
+        printf("Expression: ");
+        print_node(ast);
+        printf("\n");
+
+        node_cleanup(ast);
+    }
 
     tokenizer_cleanup(&tokenizer);
 }
