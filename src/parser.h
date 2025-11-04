@@ -10,6 +10,9 @@
 
 
 Node* parse_expression(Tokenizer* tokenizer);
+Node* parse_list(Tokenizer* tokenizer);
+void add_child_to_list(Node* list, Node* child);
+Node* parse_atom(Token token);
 void node_cleanup(Node* node);
 
 #endif /* C_SW_PARSER_H */

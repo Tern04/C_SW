@@ -44,6 +44,51 @@ Node* parse_expression(Tokenizer* tokenizer) {
 
 }
 
+Node* parse_list(Tokenizer* tokenizer) {
+    Node* child;
+    Node* list;
+    Token next;
+
+    list = create_list_node();
+
+    while (1) {
+        next = tokenizer_peek(tokenizer);
+        if (next.type == TOKEN_RBRACKET) {
+            tokenizer_get_token(tokenizer);
+            break;
+        }
+        if (next.type == TOKEN_END) {
+            fprintf(stderr, "Syntax error: missing ')'\n");
+            return NULL;
+        }
+
+        child = parse_expression(tokenizer);
+        if (child) {
+            add_child_to_list(list, child);
+        }
+    }
+
+    return list;
+}
+
+void add_child_to_list(Node* list, Node* child) {
+    Node** temp;
+
+    temp = realloc(
+        list->value.list.children,
+        sizeof(Node*) * (list->value.list.count + 1)
+    );
+
+    if (!temp) {
+        fprintf(stderr, "Memory allocation failed in add_child_to_list\n");
+        return;
+    }
+
+    list->value.list.children = temp;
+    list->value.list.children[list->value.list.count] = child;
+    list->value.list.count++;
+}
+
 void node_cleanup(Node* node) {
     int i;
     if (!node) {
