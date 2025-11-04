@@ -37,3 +37,13 @@ Node* create_list_node(void) {
     node->value.list.count = 0;
     return node;
 }
+
+Node* create_string_node(const char* text) {
+    Node* node = malloc(sizeof(Node));
+    if (!node) {
+        return NULL;
+    }
+    node->type = NODE_STRING;
+    node->value.text_value = strdup(text);
+    return node;
+}
