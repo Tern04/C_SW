@@ -46,5 +46,42 @@ void print_token(Token token) {
 
 void program_cleanup(char* file_content) {
     free(file_content);
+}
 
+void print_node(Node* node) {
+    int i;
+
+    if (!node) {
+        printf("NULL");
+        return;
+    }
+
+    switch (node->type) {
+        case NODE_INT:
+            printf("%ld", node->value.int_value);
+            break;
+
+        case NODE_STRING:
+            printf("\"%s\"", node->value.text_value);
+            break;
+
+        case NODE_SYMBOL:
+            printf("%s", node->value.text_value);
+            break;
+
+        case NODE_LIST:
+            printf("(");
+            for (i = 0; i < node->value.list.count; i++) {
+                if (i > 0) {
+                    printf(" ");
+                }
+                print_node(node->value.list.children[i]);
+            }
+            printf(")");
+            break;
+
+        default:
+            printf("UNKNOWN_NODE");
+            break;
+    }
 }
