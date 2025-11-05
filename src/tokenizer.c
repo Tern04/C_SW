@@ -19,7 +19,19 @@ void tokenizer_init(Tokenizer* tokenizer, char* input) {
 }
 
 Token tokenizer_peek(Tokenizer* tokenizer) {
-    return tokenizer->current_token;
+    size_t saved_index;
+    Token saved_current;
+    Token token;
+
+    saved_index= tokenizer->index;
+    saved_current= tokenizer->current_token;
+    token = tokenizer_get_token(tokenizer);
+
+
+    tokenizer->index = saved_index;
+    tokenizer->current_token = saved_current;
+
+    return token;
 }
 
 TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
