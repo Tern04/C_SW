@@ -16,21 +16,25 @@ Node* parse_expression(Tokenizer* tokenizer) {
         case TOKEN_STRING:
         case TOKEN_SYMBOL:
             node = parse_atom(token);
+            token_cleanup(&token);
             break;
         case TOKEN_LBRACKET:
+            token_cleanup(&token);
             node = parse_list(tokenizer);
             break;
         case TOKEN_RBRACKET:
-            printf("Unexpected right bracket\n");
+            token_cleanup(&token);
             return NULL;
         case TOKEN_ERROR:
             printf("Syntax error, invalid token\n");
+            token_cleanup(&token);
             return NULL;
         case TOKEN_END:
-            printf("Unexpected end of input\n");
+            token_cleanup(&token);
             return NULL;
         default:
             printf("Unexpected token type\n");
+            token_cleanup(&token);
             break;
     }
 
@@ -71,19 +75,24 @@ Node* parse_list(Tokenizer* tokenizer) {
     Node* child;
     Node* list;
     Token next;
+    Token consumed;
 
     list = create_list_node();
 
     while (1) {
         next = tokenizer_peek(tokenizer);
         if (next.type == TOKEN_RBRACKET) {
-            tokenizer_get_token(tokenizer);
+            consumed = tokenizer_get_token(tokenizer);
+            token_cleanup(&next);
+            token_cleanup(&consumed);
             break;
         }
         if (next.type == TOKEN_END) {
             fprintf(stderr, "Syntax error: missing ')'\n");
+            token_cleanup(&next);
             return NULL;
         }
+        token_cleanup(&next);
 
         child = parse_expression(tokenizer);
         if (child) {
