@@ -52,6 +52,9 @@ TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
             return TOKEN_RBRACKET;
         case '"':
             return TOKEN_STRING;
+        case '\'':
+            /* Apostrophe => quote symbol */
+            return TOKEN_SYMBOL;
         default:
             /* Check for positive or negative numbers*/
             if (isdigit(c) || (c == '-' && isdigit(next))) {
@@ -111,17 +114,25 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
             tokenizer->index = end - tokenizer->input;
             break;
         case TOKEN_SYMBOL:
-            /* Parse symbol/identifier */
-            start = &tokenizer->input[tokenizer->index];
-            end = start;
-            while (*end != '\0' && !isspace(*end) && *end != '(' && *end != ')' && *end != '"') {
-                end++;
+            /* Check if this is the apostrophe quote macro */
+            if (tokenizer->input[tokenizer->index] == '\'') {
+                /* Replace apostrophe with "quote" symbol */
+                token->text = malloc(6); /* "quote" + null terminator */
+                strcpy(token->text, "quote");
+                tokenizer->index++;
+            } else {
+                /* Parse normal symbol/identifier */
+                start = &tokenizer->input[tokenizer->index];
+                end = start;
+                while (*end != '\0' && !isspace(*end) && *end != '(' && *end != ')' && *end != '"') {
+                    end++;
+                }
+                length = end - start;
+                token->text = malloc(length + 1);
+                strncpy(token->text, start, length);
+                token->text[length] = '\0';
+                tokenizer->index = end - tokenizer->input;
             }
-            length = end - start;
-            token->text = malloc(length + 1);
-            strncpy(token->text, start, length);
-            token->text[length] = '\0';
-            tokenizer->index = end - tokenizer->input;
             break;
         default:
             tokenizer->index++;
