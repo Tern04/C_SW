@@ -19,4 +19,6 @@ typedef struct {
     }data;
 }Value;
 
+void value_cleanup(Value* value);
+
 #endif /* C_SW_VALUE_H */
