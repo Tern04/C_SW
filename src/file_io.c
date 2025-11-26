@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 
-char* load_input_file(const char* filename) {
+char* load_content_from_file(const char* filename) {
     FILE* file;
     long length;
     char* content;

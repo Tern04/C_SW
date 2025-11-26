@@ -182,7 +182,7 @@ int main(int argc, char* argv[]) {
             break;
 
         case MODE_BATCH:
-            file_content = load_input_file(input_file);
+            file_content = load_content_from_file(input_file);
             if (file_content) {
                 run_batch_mode(file_content);
                 program_cleanup(file_content);
@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
             break;
 
         case MODE_VERBOSE_BATCH:
-            file_content = load_input_file(input_file);
+            file_content = load_content_from_file(input_file);
             if (file_content) {
                 run_verbose_batch_mode(file_content);
                 program_cleanup(file_content);

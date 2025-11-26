@@ -10,6 +10,6 @@
  * @param filename Name of the input file
  * @return content of an input file
  */
-char* load_input_file(const char* filename);
+char* load_content_from_file(const char* filename);
 
 #endif /* C_SW_FILE_IO_H */
