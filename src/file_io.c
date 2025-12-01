@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/**
+/*
  * Reads the file and return it as a dynamically allocated string
  */
 char* load_content_from_file(const char* filename) {

@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 
-/**
+/*
  * Create a new environment
  */
 Env* create_env(void) {
@@ -23,7 +23,7 @@ Env* create_env(void) {
     return env;
 }
 
-/**
+/*
  * Cleans up allocated memory of the environment structure
  */
 void env_cleanup(Env* env) {

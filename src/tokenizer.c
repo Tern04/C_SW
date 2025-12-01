@@ -11,7 +11,7 @@
 
 #include "utils.h"
 
-/**
+/*
  * Initialize the tokenizer and set him to the beginning of the input
  */
 void tokenizer_init(Tokenizer* tokenizer, char* input) {
@@ -20,7 +20,7 @@ void tokenizer_init(Tokenizer* tokenizer, char* input) {
     tokenizer->current_token.text = NULL;
 }
 
-/**
+/*
  * Checks the next token (without moving in the text)
  */
 Token tokenizer_peek(Tokenizer* tokenizer) {
@@ -42,7 +42,7 @@ Token tokenizer_peek(Tokenizer* tokenizer) {
     return token;
 }
 
-/**
+/*
  * Recognize the type of the current token
  */
 TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
@@ -87,7 +87,7 @@ TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
 
 
 
-/**
+/*
  * Process the current token by its type - handle its content
  */
 void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
@@ -163,7 +163,7 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
     }
 }
 
-/**
+/*
  * Gets the next token from the input (moves in the text)
  */
 Token tokenizer_get_token(Tokenizer* tokenizer) {
@@ -186,7 +186,7 @@ Token tokenizer_get_token(Tokenizer* tokenizer) {
 
 }
 
-/**
+/*
  * Frees the allocated memory of the token
  */
 void token_cleanup(Token* token) {
@@ -196,7 +196,7 @@ void token_cleanup(Token* token) {
     }
 }
 
-/**
+/*
  * Frees the allocated memory of the tokenizer structure
  */
 void tokenizer_cleanup(Tokenizer* tokenizer) {
