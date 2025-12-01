@@ -11,29 +11,40 @@
 
 #include "utils.h"
 
-
+/**
+ * Initialize the tokenizer and set him to the beginning of the input
+ */
 void tokenizer_init(Tokenizer* tokenizer, char* input) {
     tokenizer->input = input;
     tokenizer->index = 0;
     tokenizer->current_token.text = NULL;
 }
 
+/**
+ * Checks the next token (without moving in the text)
+ */
 Token tokenizer_peek(Tokenizer* tokenizer) {
     size_t saved_index;
     Token saved_current;
     Token token;
 
-    saved_index= tokenizer->index;
-    saved_current= tokenizer->current_token;
+    /* Save the current token and index */
+    saved_index = tokenizer->index;
+    saved_current = tokenizer->current_token;
+
+    /* Look on the next token */
     token = tokenizer_get_token(tokenizer);
 
-
+    /* Set the current token and index back */
     tokenizer->index = saved_index;
     tokenizer->current_token = saved_current;
 
     return token;
 }
 
+/**
+ * Recognize the type of the current token
+ */
 TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
     char c;
     char next;
@@ -60,6 +71,7 @@ TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
             if (isdigit(c) || (c == '-' && isdigit(next))) {
                 return TOKEN_NUMBER;
             }
+            /* Check for symbols */
             if (isalpha(c) || strchr("+-*/<>=", c)) {
                 return TOKEN_SYMBOL;
             }
@@ -67,6 +79,17 @@ TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
     }
 }
 
+
+
+
+/* Make new methods for cases in tokenizer_process_token_by_type for modularity */
+
+
+
+
+/**
+ * Process the current token by its type - handle its content
+ */
 void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
     char* start;
     char* end;
@@ -74,7 +97,7 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
 
     switch (token->type) {
         case TOKEN_ERROR:
-            exit(-1);
+            exit(-1); /* Error handling */
         case TOKEN_END:
             break;
         case TOKEN_LBRACKET:
@@ -140,8 +163,9 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
     }
 }
 
-
-
+/**
+ * Gets the next token from the input (moves in the text)
+ */
 Token tokenizer_get_token(Tokenizer* tokenizer) {
     Token token;
     char* input_ptr;
@@ -162,6 +186,9 @@ Token tokenizer_get_token(Tokenizer* tokenizer) {
 
 }
 
+/**
+ * Frees the allocated memory of the token
+ */
 void token_cleanup(Token* token) {
     if (token && token->text) {
         free(token->text);
@@ -169,6 +196,9 @@ void token_cleanup(Token* token) {
     }
 }
 
+/**
+ * Frees the allocated memory of the tokenizer structure
+ */
 void tokenizer_cleanup(Tokenizer* tokenizer) {
     if (tokenizer->current_token.text) {
         free(tokenizer->current_token.text);
