@@ -10,12 +10,17 @@
 
 #include "tokenizer.h"
 
+/*
+ * Skips all whitespaces in the input
+ */
 void skip_whitespace(char** input) {
     while (**input != '\0' && isspace(**input)) {
         (*input)++;
     }
 }
-
+/*
+ * Print a token's type and value for debugging
+ */
 void print_token(Token token) {
     printf("Token type: ");
     switch(token.type) {
@@ -44,10 +49,16 @@ void print_token(Token token) {
     printf(", text: \"%s\"\n", token.text ? token.text : "NULL");
 }
 
+/*
+ * Frees the rest of the allocated memory
+ */
 void program_cleanup(char* file_content) {
     free(file_content);
 }
 
+/**
+ * Print the AST node for debugging
+ */
 void print_node(Node* node) {
     int i;
 
