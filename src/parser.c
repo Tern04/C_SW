@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * Parse a single expression from the tokenizer
+ */
 Node* parse_expression(Tokenizer* tokenizer) {
     Token token;
     Node* node;
@@ -73,6 +76,9 @@ Node* parse_expression(Tokenizer* tokenizer) {
 
 }
 
+/**
+ * Convert a token to an atomic node
+ */
 Node* parse_atom(Token token) {
     Node* node;
     node = NULL;
@@ -98,6 +104,9 @@ Node* parse_atom(Token token) {
     return node;
 }
 
+/**
+ * Parse a list - expression
+ */
 Node* parse_list(Tokenizer* tokenizer) {
     Node* child;
     Node* list;
@@ -130,6 +139,9 @@ Node* parse_list(Tokenizer* tokenizer) {
     return list;
 }
 
+/**
+ * Add a child node to the list
+ */
 void add_child_to_list(Node* list, Node* child) {
     Node** temp;
 
@@ -148,6 +160,9 @@ void add_child_to_list(Node* list, Node* child) {
     list->value.list.count++;
 }
 
+/**
+ * Frees the allocated memory of the node and its children
+ */
 void node_cleanup(Node* node) {
     int i;
     if (!node) {
