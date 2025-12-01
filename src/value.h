@@ -5,20 +5,27 @@
 #ifndef C_SW_VALUE_H
 #define C_SW_VALUE_H
 
+/* Types of values */
 typedef enum {
-    VALUE_INT,
-    VALUE_STRING,
-    VALUE_NIL
+    VALUE_INT, /* Integer value */
+    VALUE_STRING, /* String value */
+    VALUE_NIL /* Nil value */
 }ValueType;
 
+/* Structure for value representation */
 typedef struct {
-    ValueType type;
-    union {
-        long int_value;
-        char* string_value;
+    ValueType type; /* Type of value */
+    union { /* Depends on the type */
+        long int_value; /* Integer value */
+        char* string_value; /* String value */
     }data;
 }Value;
 
+/**
+ * Frees allocated memory inside a Value structure
+ * Only string values require a cleanup
+ * @param value Value to be freed
+ */
 void value_cleanup(Value* value);
 
 #endif /* C_SW_VALUE_H */

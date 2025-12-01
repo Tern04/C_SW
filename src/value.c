@@ -5,6 +5,10 @@
 #include "value.h"
 #include <stdlib.h>
 
+/*
+ * Frees allocated memory inside a Value structure
+ * Only string values require a cleanup
+ */
 void value_cleanup(Value* value) {
     if (!value) {
         return;
