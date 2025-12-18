@@ -6,6 +6,7 @@
 #include "value.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 /*
  * Create a new environment
@@ -21,6 +22,24 @@ Env* create_env(void) {
     env->count = 0;
 
     return env;
+}
+
+void env_set_variable(Env* env, const char* name, Value* value) {
+    int i;
+
+    /* Check if the variable exists to rewrite its value */
+    for (i = 0; i < env->count; i++) {
+        if (strcmp(env->names[i], name) == 0) {
+            /* Variable already exists, update its value */
+            value_cleanup(env->values[i]); /* Free the old value */
+            env->values[i] = value; /* Set the new value */
+            return;
+        }
+    }
+
+    /* If it does not exist, create a new one */
+
+
 }
 
 /*
