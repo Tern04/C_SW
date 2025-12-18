@@ -33,7 +33,7 @@ void env_set_value(Env* env, const char* name, Value* value);
  * @param name Name of the varible
  * @return Pointer to the found value or NULL
  */
-Value* env_get_value(Env* env, const char* name);
+Value* env_get_value(const Env* env, const char* name);
 
 /**
  * Cleans up allocated memory of the environment structure
