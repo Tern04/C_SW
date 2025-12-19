@@ -4,11 +4,13 @@
 
 #ifndef C_SW_VALUE_H
 #define C_SW_VALUE_H
+#include "s_exp.h"
 
 /* Types of values */
 typedef enum {
     VALUE_INT, /* Integer value */
     VALUE_STRING, /* String value */
+    Value_LIST, /* Arrays */
     VALUE_NIL /* Nil value */
 }ValueType;
 
@@ -18,6 +20,7 @@ typedef struct {
     union { /* Depends on the type */
         long int_value; /* Integer value */
         char* string_value; /* String value */
+        Node* list_node;
     }data;
 }Value;
 
