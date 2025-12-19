@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "tokenizer.h"
 #include "parser.h"
+#include "env.h"
 
 typedef enum {
     MODE_INTERACTIVE,
@@ -72,6 +73,40 @@ void run_batch_mode(char* file_content) {
     Tokenizer tokenizer;
     Token token;
     Node* ast;
+    Env* env;
+    Value* value_int;
+    Value* value_str;
+    char* text;
+    size_t len;
+
+
+    env = create_env();
+
+    value_int = malloc(sizeof(Value));
+    value_int->type = VALUE_INT;
+    value_int->data.int_value = 10;
+
+    env_set_variable(env, "x", value_int);
+    print_env(env);
+
+    value_str = malloc(sizeof(Value));
+    value_str->type = VALUE_STRING;
+
+    text = "Hello world!";
+    len = strlen(text);
+
+    value_str->data.string_value = malloc(len + 1);
+
+    if (value_str->data.string_value != NULL) {
+        strcpy(value_str->data.string_value, text);
+    } else {
+        free(value_str);
+        return;
+    }
+
+    env_set_variable(env, "y", value_str);
+    print_env(env);
+    env_cleanup(env);
 
     printf("Batch mode - processing file...\n");
     printf("File content: %s\n\n", file_content);
