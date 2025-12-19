@@ -24,7 +24,7 @@ void value_cleanup(Value* value) {
             free(value->data.string_value);
             value->data.string_value = NULL;
             break;
-        case Value_LIST:
+        case VALUE_LIST:
             if (value->data.list_node) {
                 node_cleanup(value->data.list_node);
                 value->data.list_node = NULL;

@@ -10,7 +10,7 @@
 typedef enum {
     VALUE_INT, /* Integer value */
     VALUE_STRING, /* String value */
-    Value_LIST, /* Arrays */
+    VALUE_LIST, /* Arrays */
     VALUE_NIL /* Nil value */
 }ValueType;
 
