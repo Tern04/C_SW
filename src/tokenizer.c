@@ -113,8 +113,20 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
             tokenizer->index++; /* Skip opening quote */
             start = &tokenizer->input[tokenizer->index];
             end = start;
-            while (*end != '"' && *end != '\0') {
-                end++;
+            /* Loop until we find an unescaped quote or end of string */
+            while (*end != '\0') {
+                if (*end == '"') {
+                    /* Check if this quote is escaped */
+                    if (end > start && *(end - 1) == '\\') {
+                        /* Escaped quote, continue */
+                        end++;
+                    } else {
+                        /* Unescaped quote, end of string */
+                        break;
+                    }
+                } else {
+                    end++;
+                }
             }
             if (*end == '\0') {
                 token->type = TOKEN_ERROR;
@@ -173,10 +185,27 @@ Token tokenizer_get_token(Tokenizer* tokenizer) {
     token.text = NULL;
     token.number_value = 0;
 
-    /* Skip whitespace first */
-    input_ptr = &tokenizer->input[tokenizer->index];
-    skip_whitespace(&input_ptr);
-    tokenizer->index = input_ptr - tokenizer->input;
+    /* Skip whitespace and comments */
+    while (1) {
+        /* Skip whitespace first */
+        input_ptr = &tokenizer->input[tokenizer->index];
+        skip_whitespace(&input_ptr);
+        tokenizer->index = input_ptr - tokenizer->input;
+
+        /* Check for comments starting with `;` */
+        if (tokenizer->input[tokenizer->index] == ';') {
+            /* Skip until end of line or end of file */
+            while (tokenizer->input[tokenizer->index] != '\0' &&
+                   tokenizer->input[tokenizer->index] != '\n') {
+                tokenizer->index++;
+            }
+            /* Continue loop to skip any whitespace after the comment */
+            continue;
+        }
+
+        /* No more comments or whitespace, break out */
+        break;
+    }
 
     token.type = tokenizer_process_token_type(tokenizer);
 
