@@ -96,3 +96,30 @@ void print_node(Node* node) {
             break;
     }
 }
+
+void print_value(const Value* value) {
+    if (value->type == VALUE_NIL) {
+        printf("NIL");
+    }
+
+    if (value->type == VALUE_INT) {
+        printf("%ld", value->data.int_value);
+    }
+    else {
+        printf("\"%s\"", value->data.string_value);
+    }
+}
+
+void print_env(Env* env) {
+    int i;
+
+    printf("Variables in the environment:");
+    printf("\n");
+    
+    for (i = 0; i < env->count; i++) {
+        printf("%s: ", env->names[i]);
+        print_value(env->values[i]);
+        printf("\n");
+    }
+
+}
