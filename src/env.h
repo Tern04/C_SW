@@ -25,7 +25,7 @@ Env* create_env(void);
  * @param name Name of the variable
  * @param value Value to be set
  */
-void env_set_value(Env* env, const char* name, Value* value);
+void env_set_variable(Env* env, const char* name, Value* value);
 
 /**
  *

@@ -34,6 +34,7 @@ void env_set_variable(Env* env, const char* name, Value* value) {
     char* temp_name;
 
 
+
     /* Check if the variable exists to rewrite its value */
     for (i = 0; i < env->count; i++) {
         if (strcmp(env->names[i], name) == 0) {
@@ -77,6 +78,7 @@ void env_set_variable(Env* env, const char* name, Value* value) {
 
     /* Add new variable to the structure */
     strcpy(temp_name, name);
+    env->names[env->count] = temp_name;
     env->values[env->count] = value;
     env->count++;
 
