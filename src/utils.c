@@ -97,6 +97,9 @@ void print_node(Node* node) {
     }
 }
 
+/**
+ * Prints a value for debugging
+ */
 void print_value(const Value* value) {
     if (value->type == VALUE_NIL) {
         printf("NIL");
@@ -110,12 +113,15 @@ void print_value(const Value* value) {
     }
 }
 
+/**
+ * Print variables in the environment
+ */
 void print_env(Env* env) {
     int i;
 
     printf("Variables in the environment:");
     printf("\n");
-    
+
     for (i = 0; i < env->count; i++) {
         printf("%s: ", env->names[i]);
         print_value(env->values[i]);
