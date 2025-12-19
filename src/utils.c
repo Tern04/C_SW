@@ -104,9 +104,11 @@ void print_value(const Value* value) {
     if (value->type == VALUE_NIL) {
         printf("NIL");
     }
-
-    if (value->type == VALUE_INT) {
+    else if (value->type == VALUE_INT) {
         printf("%ld", value->data.int_value);
+    }
+    else if (value->type == VALUE_LIST) {
+        print_node(value->data.list_node);
     }
     else {
         printf("\"%s\"", value->data.string_value);
