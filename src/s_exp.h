@@ -53,4 +53,11 @@ Node* create_symbol_node(const char* text);
  */
 Node* create_list_node(void);
 
+/**
+ * Create a copy of a node for Environment
+ * @param node node to be copied
+ * @return Copy of a node
+ */
+Node* create_node_copy(Node* node);
+
 #endif /* C_SW_S_EXP_H */
