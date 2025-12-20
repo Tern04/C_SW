@@ -13,6 +13,6 @@
  * @param node Node to evaluate
  * @return Value from the evaluation
  */
-Value* eval(Env* env, Node* node);
+Value* eval(const Env* env, const Node* node);
 
 #endif /* C_SW_EVAL_H */
