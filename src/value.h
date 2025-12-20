@@ -56,7 +56,7 @@ Value* create_nil_value(void);
  * @param value Value to be copied
  * @return Created copy of a value
  */
-Value* create_value_copy(Value* value);
+Value* create_value_copy(const Value* value);
 
 /**
  * Frees allocated memory inside a Value structure
