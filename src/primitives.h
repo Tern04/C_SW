@@ -5,4 +5,24 @@
 #ifndef C_SW_PRIMITIVES_H
 #define C_SW_PRIMITIVES_H
 
+/* Enum for types of primitive functions */
+typedef enum {
+    PRIM_ADD, /* + */
+    PRIM_SUB, /* - */
+    PRIM_MUL, /* * */
+    PRIM_DIV, /* / */
+    PRIM_SET, /* set */
+    PRIM_IF, /* if */
+    PRIM_WHILE, /* while */
+    PRIM_UNKNOWN /* Unknown type */
+}PrimitivesType;
+
+/**
+ * Get type of primitive function by its name
+ * @param name First element of a list - name of the primitive function
+ * @return Type of primitive function
+ */
+PrimitivesType get_primitive_type(const char* name);
+
+
 #endif /* C_SW_PRIMITIVES_H */
