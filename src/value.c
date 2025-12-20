@@ -2,10 +2,11 @@
 * Created by Tomáš Rybák on 19.10.2025.
 */
 
-#include "value.h"
 #include <stdlib.h>
-
+#include "value.h"
 #include "parser.h"
+
+
 
 /*
  * Frees allocated memory inside a Value structure
