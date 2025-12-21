@@ -18,6 +18,30 @@ void skip_whitespace(char** input) {
         (*input)++;
     }
 }
+
+/*
+ * Sets the input text to uppercase
+ */
+void string_to_uppercase(char* input) {
+    char current_char;
+    const int ascii_offset = 'a' - 'A'; /* Difference between lowercase and uppercase in ASCII */
+
+    if (input == NULL) {
+        return;
+    }
+
+    /* Iterate through each character in the string */
+    while (*input != '\0') {
+        current_char = *input;
+
+        /* Check if the character is a lowercase letter */
+        if (current_char >= 'a' && current_char <= 'z') {
+            *input = (char)(current_char - ascii_offset); /* Convert to uppercase */
+        }
+        input++;
+    }
+}
+
 /*
  * Print a token's type and value for debugging
  */

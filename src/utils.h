@@ -17,6 +17,12 @@
 void skip_whitespace(char** input);
 
 /**
+ * Sets the input text to uppercase
+ * @param input Text to be set to the uppercase
+ */
+void string_to_uppercase(char* input);
+
+/**
  * Print a token's type and value for debugging
  * @param token Token for printing
  */
