@@ -84,10 +84,6 @@ TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
  * Process the current token by its type - handle its content
  */
 void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
-    char* start;
-    char* end;
-    size_t length;
-
     switch (token->type) {
         case TOKEN_ERROR:
             exit(-1); /* Error handling */
@@ -107,26 +103,8 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
             tokenize_number(tokenizer, token);
             break;
         case TOKEN_SYMBOL:
-            /* Check if this is the apostrophe quote macro */
-            if (tokenizer->input[tokenizer->index] == '\'') {
-                /* Replace apostrophe with "quote" symbol */
-                token->text = malloc(6); /* "QUOTE" + null terminator */
-                strcpy(token->text, "QUOTE");
-                tokenizer->index++;
-            } else {
-                /* Parse normal symbol/identifier */
-                start = &tokenizer->input[tokenizer->index];
-                end = start;
-                while (*end != '\0' && !isspace(*end) && *end != '(' && *end != ')' && *end != '"') {
-                    end++;
-                }
-                length = end - start;
-                token->text = malloc(length + 1);
-                strncpy(token->text, start, length);
-                token->text[length] = '\0';
-                string_to_uppercase(token->text);
-                tokenizer->index = end - tokenizer->input;
-            }
+            /* Parse symbol */
+            tokenize_symbol(tokenizer, token);
             break;
         default:
             tokenizer->index++;
@@ -230,6 +208,33 @@ void tokenize_number(Tokenizer* tokenizer, Token* token) {
     strncpy(token->text, start, length);
     token->text[length] = '\0';
     tokenizer->index = end - tokenizer->input;
+}
+
+void tokenize_symbol(Tokenizer* tokenizer, Token* token) {
+    char* start;
+    char* end;
+    size_t length;
+
+    /* Check if this is the apostrophe quote macro */
+    if (tokenizer->input[tokenizer->index] == '\'') {
+        /* Replace apostrophe with "quote" symbol */
+        token->text = malloc(6); /* "QUOTE" + null terminator */
+        strcpy(token->text, "QUOTE");
+        tokenizer->index++;
+    } else {
+        /* Parse normal symbol/identifier */
+        start = &tokenizer->input[tokenizer->index];
+        end = start;
+        while (*end != '\0' && !isspace(*end) && *end != '(' && *end != ')' && *end != '"') {
+            end++;
+        }
+        length = end - start;
+        token->text = malloc(length + 1);
+        strncpy(token->text, start, length);
+        token->text[length] = '\0';
+        string_to_uppercase(token->text);
+        tokenizer->index = end - tokenizer->input;
+    }
 }
 
 /*
