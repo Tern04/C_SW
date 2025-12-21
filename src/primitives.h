@@ -50,6 +50,15 @@ Value* prim_sub(Value** args, int args_count);
  */
 Value* prim_mul(Value** args, int args_count);
 
+/**
+ * Lisp division primitive function (/)
+ * Division is rounded only to whole numbers. - could be improved in the future.
+ * @param args Array of argument values
+ * @param args_count Number of arguments
+ * @return Result value of the division
+ */
+Value* prim_div(Value** args, int args_count);
+
 
 
 #endif /* C_SW_PRIMITIVES_H */
