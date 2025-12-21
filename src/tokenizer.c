@@ -104,13 +104,7 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
             break;
         case TOKEN_NUMBER:
             /* Parse number */
-            start = &tokenizer->input[tokenizer->index];
-            token->number_value = strtol(start, &end, 10);
-            length = end - start;
-            token->text = malloc(length + 1);
-            strncpy(token->text, start, length);
-            token->text[length] = '\0';
-            tokenizer->index = end - tokenizer->input;
+            tokenize_number(tokenizer, token);
             break;
         case TOKEN_SYMBOL:
             /* Check if this is the apostrophe quote macro */
@@ -222,6 +216,20 @@ void tokenize_string(Tokenizer* tokenizer, Token* token) {
     token->text[length] = '\0';
     string_to_uppercase(token->text);
     tokenizer->index = (end - tokenizer->input) + 1; /* Skip closing quote */
+}
+
+void tokenize_number(Tokenizer* tokenizer, Token* token) {
+    char* start;
+    char* end;
+    size_t length;
+
+    start = &tokenizer->input[tokenizer->index];
+    token->number_value = strtol(start, &end, 10);
+    length = end - start;
+    token->text = malloc(length + 1);
+    strncpy(token->text, start, length);
+    token->text[length] = '\0';
+    tokenizer->index = end - tokenizer->input;
 }
 
 /*
