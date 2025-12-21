@@ -100,34 +100,7 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
             break;
         case TOKEN_STRING:
             /* Parse string literal */
-            tokenizer->index++; /* Skip opening quote */
-            start = &tokenizer->input[tokenizer->index];
-            end = start;
-            /* Loop until we find an unescaped quote or end of string */
-            while (*end != '\0') {
-                if (*end == '"') {
-                    /* Check if this quote is escaped */
-                    if (end > start && *(end - 1) == '\\') {
-                        /* Escaped quote, continue */
-                        end++;
-                    } else {
-                        /* Unescaped quote, end of string */
-                        break;
-                    }
-                } else {
-                    end++;
-                }
-            }
-            if (*end == '\0') {
-                token->type = TOKEN_ERROR;
-                return;
-            }
-            length = end - start;
-            token->text = malloc(length + 1);
-            strncpy(token->text, start, length);
-            token->text[length] = '\0';
-            string_to_uppercase(token->text);
-            tokenizer->index = (end - tokenizer->input) + 1; /* Skip closing quote */
+            tokenize_string(tokenizer, token);
             break;
         case TOKEN_NUMBER:
             /* Parse number */
@@ -212,6 +185,43 @@ void tokenize_bracket(Tokenizer* tokenizer, Token* token) {
     token->text[0] = tokenizer->input[tokenizer->index];
     token->text[1] = '\0';
     tokenizer->index++;
+}
+
+void tokenize_string(Tokenizer* tokenizer, Token* token) {
+    char* start;
+    char* end;
+    size_t length;
+
+    tokenizer->index++; /* Skip opening quote */
+    start = &tokenizer->input[tokenizer->index];
+    end = start;
+
+    /* Loop until we find an unescaped quote or end of a string */
+    while (*end != '\0') {
+        if (*end == '"') {
+            /* Check if this quote is escaped */
+            if (end > start && *(end - 1) == '\\') {
+                /* Escaped quote, continue */
+                end++;
+            } else {
+                /* Unescaped quote, end of string */
+                break;
+            }
+        } else {
+            end++;
+        }
+    }
+    if (*end == '\0') {
+        token->type = TOKEN_ERROR;
+        return;
+    }
+
+    length = end - start;
+    token->text = malloc(length + 1);
+    strncpy(token->text, start, length);
+    token->text[length] = '\0';
+    string_to_uppercase(token->text);
+    tokenizer->index = (end - tokenizer->input) + 1; /* Skip closing quote */
 }
 
 /*
