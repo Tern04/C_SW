@@ -35,12 +35,20 @@ PrimitivesType get_primitive_type(const char* name);
 Value* prim_add(Value** args, int args_count);
 
 /**
- * Lisp subdivision primitive function (-)
+ * Lisp subtraction primitive function (-)
  * @param args Array of argument values
  * @param args_count Number of arguments
- * @return Result value of the addition
+ * @return Result value of the subtraction
  */
 Value* prim_sub(Value** args, int args_count);
+
+/**
+ * Lisp multiplication primitive function (*)
+ * @param args Array of argument values
+ * @param args_count Number of arguments
+ * @return Result value of the multiplication
+ */
+Value* prim_mul(Value** args, int args_count);
 
 
 

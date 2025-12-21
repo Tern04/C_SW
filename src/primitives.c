@@ -87,3 +87,33 @@ Value* prim_sub(Value** args, int args_count) {
     result = create_int_value(diff); /* Create a new value for the result */
     return result;
 }
+
+/*
+ * Lisp multiplication primitive function (*)
+ */
+Value* prim_mul(Value** args, int args_count) {
+    Value* result;
+    long product;
+    int i;
+
+    /* Check for at least one argument */
+    if (args_count == 0) {
+        printf("Error: * expects at least one argument\n");
+        exit(1);
+    }
+
+    product = 1; /* Initialize product to 1 */
+
+    for (i = 0; i < args_count; i++) {
+
+        /* Check for integer arguments */
+        if (args[i]->type != VALUE_INT) {
+            printf("Error: * expects integer arguments\n");
+            return create_nil_value();
+        }
+        product *= args[i]->data.int_value; /* Multiply the integer values */
+    }
+
+    result = create_int_value(product); /* Create a new value for the result */
+    return result;
+}
