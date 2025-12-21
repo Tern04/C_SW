@@ -68,6 +68,34 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token);
 Token tokenizer_get_token(Tokenizer* tokenizer);
 
 /**
+ * Helper function to tokenize brackets
+ * @param tokenizer Token reader
+ * @param token Token to be processed
+ */
+void tokenize_bracket(Tokenizer* tokenizer, Token* token);
+
+/**
+ * Helper function to tokenize strings
+ * @param tokenizer Token reader
+ * @param token Token to be processed
+ */
+void tokenize_string(Tokenizer* tokenizer, Token* token);
+
+/**
+ * Helper function to tokenize numbers
+ * @param tokenizer Token reader
+ * @param token Token to be processed
+ */
+void tokenize_number(Tokenizer* tokenizer, Token* token);
+
+/**
+ * Helper function to tokenize symbols
+ * @param tokenizer Token reader
+ * @param token Token to be processed
+ */
+void tokenize_symbol(Tokenizer* tokenizer, Token* token);
+
+/**
  * Frees the allocated memory of the token
  * @param token Token to be freed
  */
