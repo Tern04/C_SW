@@ -80,13 +80,6 @@ TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
 }
 
 
-
-
-/* Make new methods for cases in tokenizer_process_token_by_type for modularity */
-
-
-
-
 /*
  * Process the current token by its type - handle its content
  */
@@ -103,10 +96,7 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
         case TOKEN_LBRACKET:
         case TOKEN_RBRACKET:
             /* Single character tokens */
-            token->text = malloc(2);
-            token->text[0] = tokenizer->input[tokenizer->index];
-            token->text[1] = '\0';
-            tokenizer->index++;
+            tokenize_bracket(tokenizer, token);
             break;
         case TOKEN_STRING:
             /* Parse string literal */
@@ -215,6 +205,13 @@ Token tokenizer_get_token(Tokenizer* tokenizer) {
 
     return token;
 
+}
+
+void tokenize_bracket(Tokenizer* tokenizer, Token* token) {
+    token->text = malloc(2);
+    token->text[0] = tokenizer->input[tokenizer->index];
+    token->text[1] = '\0';
+    tokenizer->index++;
 }
 
 /*
