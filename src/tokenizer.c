@@ -15,6 +15,7 @@
  * Initialize the tokenizer and set him to the beginning of the input
  */
 void tokenizer_init(Tokenizer* tokenizer, char* input) {
+    /* Set initial values */
     tokenizer->input = input;
     tokenizer->index = 0;
     tokenizer->current_token.text = NULL;
@@ -32,8 +33,7 @@ Token tokenizer_peek(Tokenizer* tokenizer) {
     saved_index = tokenizer->index;
     saved_current = tokenizer->current_token;
 
-    /* Look on the next token */
-    token = tokenizer_get_token(tokenizer);
+    token = tokenizer_get_token(tokenizer); /* Look at the next token */
 
     /* Set the current token and index back */
     tokenizer->index = saved_index;
@@ -49,9 +49,10 @@ TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
     char c;
     char next;
 
-    c = tokenizer->input[tokenizer->index];
-    next = tokenizer->input[tokenizer->index + 1];
+    c = tokenizer->input[tokenizer->index]; /* Current character */
+    next = tokenizer->input[tokenizer->index + 1]; /* Next character */
 
+    /* Check for the end of input */
     if (c == '\0') {
         return TOKEN_END;
     }
@@ -152,21 +153,27 @@ Token tokenizer_get_token(Tokenizer* tokenizer) {
 
 }
 
+/*
+ * Helper function to tokenize brackets
+ */
 void tokenize_bracket(Tokenizer* tokenizer, Token* token) {
-    token->text = malloc(2);
-    token->text[0] = tokenizer->input[tokenizer->index];
-    token->text[1] = '\0';
-    tokenizer->index++;
+    token->text = malloc(2); /* Allocate memory for single character and null terminator */
+    token->text[0] = tokenizer->input[tokenizer->index]; /* Set the bracket character */
+    token->text[1] = '\0'; /* Null-terminate the string */
+    tokenizer->index++; /* Move to the next character */
 }
 
+/*
+ * Helper function to tokenize strings
+ */
 void tokenize_string(Tokenizer* tokenizer, Token* token) {
     char* start;
     char* end;
     size_t length;
 
     tokenizer->index++; /* Skip opening quote */
-    start = &tokenizer->input[tokenizer->index];
-    end = start;
+    start = &tokenizer->input[tokenizer->index]; /* Start of the string */
+    end = start; /* Initialize end pointer */
 
     /* Loop until we find an unescaped quote or end of a string */
     while (*end != '\0') {
@@ -183,33 +190,41 @@ void tokenize_string(Tokenizer* tokenizer, Token* token) {
             end++;
         }
     }
+
+    /* Check for unterminated string */
     if (*end == '\0') {
         token->type = TOKEN_ERROR;
         return;
     }
 
-    length = end - start;
-    token->text = malloc(length + 1);
-    strncpy(token->text, start, length);
-    token->text[length] = '\0';
-    string_to_uppercase(token->text);
+    length = end - start; /* Calculate length of the string */
+    token->text = malloc(length + 1); /* Allocate memory for the string */
+    strncpy(token->text, start, length); /* Copy the string content */
+    token->text[length] = '\0'; /* Null-terminate the string */
+    string_to_uppercase(token->text); /* Convert to uppercase */
     tokenizer->index = (end - tokenizer->input) + 1; /* Skip closing quote */
 }
 
+/*
+ * Helper function to tokenize numbers
+ */
 void tokenize_number(Tokenizer* tokenizer, Token* token) {
     char* start;
     char* end;
     size_t length;
 
-    start = &tokenizer->input[tokenizer->index];
-    token->number_value = strtol(start, &end, 10);
-    length = end - start;
-    token->text = malloc(length + 1);
-    strncpy(token->text, start, length);
-    token->text[length] = '\0';
-    tokenizer->index = end - tokenizer->input;
+    start = &tokenizer->input[tokenizer->index]; /* Start of the number */
+    token->number_value = strtol(start, &end, 10); /* Convert to long and find the end */
+    length = end - start; /* Calculate the length of the number */
+    token->text = malloc(length + 1);  /* Allocate memory for the number text */
+    strncpy(token->text, start, length); /* Copy the number text */
+    token->text[length] = '\0'; /* Null-terminate the string */
+    tokenizer->index = end - tokenizer->input; /* Move index forward */
 }
 
+/*
+ * Helper function to tokenize symbols
+ */
 void tokenize_symbol(Tokenizer* tokenizer, Token* token) {
     char* start;
     char* end;
@@ -219,21 +234,23 @@ void tokenize_symbol(Tokenizer* tokenizer, Token* token) {
     if (tokenizer->input[tokenizer->index] == '\'') {
         /* Replace apostrophe with "quote" symbol */
         token->text = malloc(6); /* "QUOTE" + null terminator */
-        strcpy(token->text, "QUOTE");
+        strcpy(token->text, "QUOTE"); /* Set token text to "QUOTE" */
         tokenizer->index++;
     } else {
         /* Parse normal symbol/identifier */
         start = &tokenizer->input[tokenizer->index];
         end = start;
+        /* Find the end of the symbol */
         while (*end != '\0' && !isspace(*end) && *end != '(' && *end != ')' && *end != '"') {
             end++;
         }
-        length = end - start;
-        token->text = malloc(length + 1);
-        strncpy(token->text, start, length);
-        token->text[length] = '\0';
-        string_to_uppercase(token->text);
-        tokenizer->index = end - tokenizer->input;
+
+        length = end - start; /* Calculate length of the symbol */
+        token->text = malloc(length + 1); /* Allocate memory for the symbol text */
+        strncpy(token->text, start, length); /* Copy the symbol text */
+        token->text[length] = '\0'; /* Null-terminate the string */
+        string_to_uppercase(token->text); /* Convert to uppercase */
+        tokenizer->index = end - tokenizer->input; /* Move index forward */
     }
 }
 
@@ -241,7 +258,13 @@ void tokenize_symbol(Tokenizer* tokenizer, Token* token) {
  * Frees the allocated memory of the token
  */
 void token_cleanup(Token* token) {
-    if (token && token->text) {
+    /* Check for NULL pointer */
+    if (!token) {
+        return;
+    }
+
+    /* Free the text if allocated */
+    if (token->text) {
         free(token->text);
         token->text = NULL;
     }
@@ -251,6 +274,11 @@ void token_cleanup(Token* token) {
  * Frees the allocated memory of the tokenizer structure
  */
 void tokenizer_cleanup(Tokenizer* tokenizer) {
+    /* Check for NULL pointer */
+    if (!tokenizer) {
+        return;
+    }
+    /* Free the current token text if allocated */
     if (tokenizer->current_token.text) {
         free(tokenizer->current_token.text);
         tokenizer->current_token.text = NULL;
