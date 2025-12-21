@@ -136,6 +136,7 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
             token->text = malloc(length + 1);
             strncpy(token->text, start, length);
             token->text[length] = '\0';
+            string_to_uppercase(token->text);
             tokenizer->index = (end - tokenizer->input) + 1; /* Skip closing quote */
             break;
         case TOKEN_NUMBER:
@@ -152,8 +153,8 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
             /* Check if this is the apostrophe quote macro */
             if (tokenizer->input[tokenizer->index] == '\'') {
                 /* Replace apostrophe with "quote" symbol */
-                token->text = malloc(6); /* "quote" + null terminator */
-                strcpy(token->text, "quote");
+                token->text = malloc(6); /* "QUOTE" + null terminator */
+                strcpy(token->text, "QUOTE");
                 tokenizer->index++;
             } else {
                 /* Parse normal symbol/identifier */
@@ -166,6 +167,7 @@ void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
                 token->text = malloc(length + 1);
                 strncpy(token->text, start, length);
                 token->text[length] = '\0';
+                string_to_uppercase(token->text);
                 tokenizer->index = end - tokenizer->input;
             }
             break;
