@@ -7,6 +7,7 @@
 #include "eval.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "env.h"
 #include "primitives.h"
@@ -36,11 +37,8 @@ Value* eval(const Env* env, const Node* node) {
             }
             return create_value_copy(value); /* Return a copy of the found value */
         case NODE_LIST:
-
-
-
-
-            value = NULL;
+            /* Evaluate the list */
+            value = eval_list(env, node);
             break;
         default:
             return NULL;
@@ -48,9 +46,13 @@ Value* eval(const Env* env, const Node* node) {
     return value;
 }
 
+/*
+ * Evaluates the list based on its first element - primitive function
+ */
 Value* eval_list(const Env* env, const Node* node) {
     PrimitivesType type;
     Node* first_elem;
+    int args_count;
 
     /* Empty list  */
     if (node->value.list.count == 0) {
@@ -64,7 +66,7 @@ Value* eval_list(const Env* env, const Node* node) {
         return create_nil_value();
     }
 
-    /* Get type of a primitive function by the first element in the list */
+    /* Get type of primitive function by the first element in the list */
     type = get_primitive_type(first_elem->value.text_value);
 
     switch (type) {
@@ -81,6 +83,49 @@ Value* eval_list(const Env* env, const Node* node) {
         default:
             break;
     }
+    return NULL;
+}
+
+/*
+ * Prepares array of evaluated argument values from node's children
+ */
+Value** handle_arguments(const Env* env, const Node* node, int* args_count) {
+    Value** args;
+    int count;
+    int i;
+
+    count = node->value.list.count - 1; /* Elements - name of a primitive function */
+    *args_count = count; /* Store number of arguments */
+
+    args = malloc(sizeof(Value*) * count); /* Allocate memory for arguments array */
+
+    /* Check for allocation failure */
+    if (!args) {
+        return NULL;
+    }
+
+    for (i = 0; i < count; i++) {
+        args[i] = eval(env, node->value.list.children[i + 1]); /* Evaluate each argument */
+    }
+
+    return args;
+}
 
 
+/*
+ * Frees allocated memory of arguments for primitive functions
+ */
+void arguments_cleanup(Value** args, int count) {
+    int i;
+
+    if (!args) {
+        return;
+    }
+
+    for (i = 0; i < count; i++) {
+        if (args[i]) {
+            value_cleanup(args[i]);
+        }
+    }
+    free(args);
 }
