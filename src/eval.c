@@ -12,7 +12,6 @@
 #include "env.h"
 #include "primitives.h"
 #include "value.h"
-#include "primitives.h"
 
 /*
  * Main evaluation function
@@ -135,16 +134,18 @@ Value** handle_arguments(const Env* env, const Node* node, int* args_count) {
 /*
  * Frees allocated memory of arguments for primitive functions
  */
-void arguments_cleanup(Value** args, int count) {
+void arguments_cleanup(Value** args, const int count) {
     int i;
 
     if (!args) {
         return;
     }
 
+    /* Free each argument value */
     for (i = 0; i < count; i++) {
         if (args[i]) {
             value_cleanup(args[i]);
+            free(args[i]);
         }
     }
     free(args);
