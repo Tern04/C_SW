@@ -17,7 +17,7 @@ SRCS = $(SRC_DIR)/main.c \
        $(SRC_DIR)/eval.c \
        $(SRC_DIR)/file_io.c \
        $(SRC_DIR)/parser.c \
-       $(SRC_DIR)/primitives.c \
+       $(SRC_DIR)/buildins.c \
        $(SRC_DIR)/s_exp.c \
        $(SRC_DIR)/tokenizer.c \
        $(SRC_DIR)/utils.c \
@@ -32,7 +32,7 @@ HEADERS = $(SRC_DIR)/env.h \
           $(SRC_DIR)/eval.h \
           $(SRC_DIR)/file_io.h \
           $(SRC_DIR)/parser.h \
-          $(SRC_DIR)/primitives.h \
+          $(SRC_DIR)/buildins.h \
           $(SRC_DIR)/s_exp.h \
           $(SRC_DIR)/tokenizer.h \
           $(SRC_DIR)/utils.h \

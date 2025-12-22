@@ -2,29 +2,29 @@
 * Created by Tomáš Rybák on 19.10.2025.
 */
 
-#ifndef C_SW_PRIMITIVES_H
-#define C_SW_PRIMITIVES_H
-#include "env.h"
+#ifndef C_SW_BUILDINS_H
+#define C_SW_BUILDINS_H
 #include "value.h"
 
-/* Enum for types of primitive functions */
+/* Enum for types of build in functions */
 typedef enum {
+    BI_SET, /* set */
+    BI_IF, /* if */
+    BI_WHILE, /* while */
+    BI_UNKNOWN, /* Unknown type */
+
     PRIM_ADD, /* + */
     PRIM_SUB, /* - */
     PRIM_MUL, /* * */
-    PRIM_DIV, /* / */
-    PRIM_SET, /* set */
-    PRIM_IF, /* if */
-    PRIM_WHILE, /* while */
-    PRIM_UNKNOWN /* Unknown type */
-}PrimitivesType;
+    PRIM_DIV /* / */
+}BuildinType;
 
 /**
  * Get type of primitive function by its name
  * @param name First element of a list - name of the primitive function
  * @return Type of primitive function
  */
-PrimitivesType get_primitive_type(const char* name);
+BuildinType get_buildin_type(const char* name);
 
 /**
  * Lisp addition primitive function (+)
@@ -52,7 +52,7 @@ Value* prim_mul(Value** args, int args_count);
 
 /**
  * Lisp division primitive function (/)
- * Division is rounded only to whole numbers. - could be improved in the future.
+ * Division is rounded only to whole numbers. - Could be improved in the future.
  * @param args Array of argument values
  * @param args_count Number of arguments
  * @return Result value of the division
@@ -61,4 +61,4 @@ Value* prim_div(Value** args, int args_count);
 
 
 
-#endif /* C_SW_PRIMITIVES_H */
+#endif /* C_SW_BUILDINS_H */

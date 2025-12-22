@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 #include "env.h"
-#include "primitives.h"
+#include "buildins.h"
 #include "value.h"
 
 /*
@@ -50,7 +50,7 @@ Value* eval(const Env* env, const Node* node) {
  * Evaluates the list based on its first element - primitive function
  */
 Value* eval_list(const Env* env, const Node* node) {
-    PrimitivesType type;
+    BuildinType type;
     Node* first_elem;
     Value* result;
     Value** args;
@@ -69,7 +69,7 @@ Value* eval_list(const Env* env, const Node* node) {
     }
 
     /* Get type of primitive function by the first element in the list */
-    type = get_primitive_type(first_elem->value.text_value);
+    type = get_buildin_type(first_elem->value.text_value);
 
     switch (type) {
         /* To be implemented in primitives.c/h */
@@ -93,10 +93,10 @@ Value* eval_list(const Env* env, const Node* node) {
             result = prim_div(args, args_count);
             arguments_cleanup(args, args_count);
             return result;
-        case PRIM_SET:
-        case PRIM_IF:
-        case PRIM_WHILE:
-        case PRIM_UNKNOWN:
+        case BI_SET:
+        case BI_IF:
+        case BI_WHILE:
+        case BI_UNKNOWN:
             printf("Error: unknown primitive function\n");
             return create_nil_value();
         default:
