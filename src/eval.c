@@ -12,6 +12,7 @@
 #include "env.h"
 #include "primitives.h"
 #include "value.h"
+#include "primitives.h"
 
 /*
  * Main evaluation function
@@ -52,6 +53,8 @@ Value* eval(const Env* env, const Node* node) {
 Value* eval_list(const Env* env, const Node* node) {
     PrimitivesType type;
     Node* first_elem;
+    Value* result;
+    Value** args;
     int args_count;
 
     /* Empty list  */
@@ -72,14 +75,31 @@ Value* eval_list(const Env* env, const Node* node) {
     switch (type) {
         /* To be implemented in primitives.c/h */
         case PRIM_ADD:
+            args = handle_arguments(env, node, &args_count);
+            result = prim_add(args, args_count);
+            arguments_cleanup(args, args_count);
+            return result;
         case PRIM_SUB:
+            args = handle_arguments(env, node, &args_count);
+            result = prim_sub(args, args_count);
+            arguments_cleanup(args, args_count);
+            return result;
         case PRIM_MUL:
+            args = handle_arguments(env, node, &args_count);
+            result = prim_mul(args, args_count);
+            arguments_cleanup(args, args_count);
+            return result;
         case PRIM_DIV:
+            args = handle_arguments(env, node, &args_count);
+            result = prim_div(args, args_count);
+            arguments_cleanup(args, args_count);
+            return result;
         case PRIM_SET:
         case PRIM_IF:
         case PRIM_WHILE:
         case PRIM_UNKNOWN:
             printf("Error: unknown primitive function\n");
+            return create_nil_value();
         default:
             break;
     }

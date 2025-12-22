@@ -16,9 +16,9 @@ PrimitivesType get_primitive_type(const char* name) {
     if (strcmp(name, "-") == 0) return PRIM_SUB;
     if (strcmp(name, "*") == 0) return PRIM_MUL;
     if (strcmp(name, "/") == 0) return PRIM_DIV;
-    if (strcmp(name, "set") == 0) return PRIM_SET;
-    if (strcmp(name, "if") == 0) return PRIM_IF;
-    if (strcmp(name, "while") == 0) return PRIM_WHILE;
+    if (strcmp(name, "SET") == 0) return PRIM_SET;
+    if (strcmp(name, "IF") == 0) return PRIM_IF;
+    if (strcmp(name, "WHILE") == 0) return PRIM_WHILE;
     return PRIM_UNKNOWN;
 }
 
@@ -41,7 +41,7 @@ Value* prim_add(Value** args, const int args_count) {
     for (i = 0; i < args_count; i++) {
 
         /* Check for integer arguments */
-        if (args[i]->type != VALUE_INT ) {
+        if (!args[i] || args[i]->type != VALUE_INT ) {
             printf("Error: + expects integer arguments\n");
             exit(1);
         }
@@ -77,7 +77,7 @@ Value* prim_sub(Value** args, int args_count) {
     for (i = 0; i < args_count - 1; i++) {
 
         /* Check for integer arguments */
-        if (args[i + 1]->type != VALUE_INT) {
+        if (!args[i] || args[i + 1]->type != VALUE_INT) {
             printf("Error: - expects integer arguments\n");
             return create_nil_value();
         }
@@ -107,7 +107,7 @@ Value* prim_mul(Value** args, int args_count) {
     for (i = 0; i < args_count; i++) {
 
         /* Check for integer arguments */
-        if (args[i]->type != VALUE_INT) {
+        if (!args[i] || args[i]->type != VALUE_INT) {
             printf("Error: * expects integer arguments\n");
             return create_nil_value();
         }
@@ -137,7 +137,7 @@ Value* prim_div(Value** args, int args_count) {
     for (i = 1; i < args_count; i++) {
 
         /* Check for integer arguments */
-        if (args[i]->type != VALUE_INT) {
+        if (!args[i] || args[i]->type != VALUE_INT) {
             printf("Error: / expects integer arguments\n");
             return create_nil_value();
         }
