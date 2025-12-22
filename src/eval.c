@@ -68,27 +68,26 @@ Value* eval_list(const Env* env, const Node* node) {
         return create_nil_value();
     }
 
-    /* Get type of primitive function by the first element in the list */
+    /* Get a type of primitive function by the first element in the list */
     type = get_buildin_type(first_elem->value.text_value);
 
     switch (type) {
-        /* To be implemented in primitives.c/h */
-        case PRIM_ADD:
+        case BI_ADD:
             args = handle_arguments(env, node, &args_count);
             result = prim_add(args, args_count);
             arguments_cleanup(args, args_count);
             return result;
-        case PRIM_SUB:
+        case BI_SUB:
             args = handle_arguments(env, node, &args_count);
             result = prim_sub(args, args_count);
             arguments_cleanup(args, args_count);
             return result;
-        case PRIM_MUL:
+        case BI_MUL:
             args = handle_arguments(env, node, &args_count);
             result = prim_mul(args, args_count);
             arguments_cleanup(args, args_count);
             return result;
-        case PRIM_DIV:
+        case BI_DIV:
             args = handle_arguments(env, node, &args_count);
             result = prim_div(args, args_count);
             arguments_cleanup(args, args_count);

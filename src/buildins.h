@@ -8,16 +8,58 @@
 
 /* Enum for types of build in functions */
 typedef enum {
-    BI_SET, /* set */
-    BI_IF, /* if */
-    BI_WHILE, /* while */
-    BI_UNKNOWN, /* Unknown type */
+    /* ==========================================================
+     * Section for special form operators (eval.c)
+     * They work directly with unevaluated arguments from the AST.
+     * ========================================================== */
 
-    PRIM_ADD, /* + */
-    PRIM_SUB, /* - */
-    PRIM_MUL, /* * */
-    PRIM_DIV /* / */
-}BuildinType;
+    /* Special operators  */
+    BI_QUOTE,   /* quote, ' */
+    BI_SET,     /* set */
+    BI_INC,     /* inc */
+    BI_DEC,     /* dec */
+    BI_QUIT,    /* quit */
+
+    /* Control operators */
+    BI_IF,      /* if */
+    BI_WHILE,   /* while */
+    BI_BRK,     /* brk */
+
+    /* ==========================================================
+     * Section for standard build-in functions (buildins.c)
+     * They work with already evaluated arguments.
+     * ========================================================== */
+
+    /* Arithmetic operators */
+    BI_ADD,     /* + */
+    BI_SUB,     /* - */
+    BI_MUL,     /* * */
+    BI_DIV,     /* / */
+    BI_MAX,     /* max */
+    BI_MIN,     /* min */
+
+    /* Relation operators */
+    BI_EQ,      /* = */
+    BI_NEQ,     /* /= */
+    BI_LT,      /* < */
+    BI_GT,      /* > */
+    BI_LTE,     /* <= */
+    BI_GTE,     /* >= */
+
+    /* Operators for lists and atoms */
+    BI_LIST,    /* list */
+    BI_ATOM,    /* atom */
+    BI_CAR,     /* car */
+    BI_CDR,     /* cdr */
+    BI_NTH,     /* nth */
+    BI_LENGTH,  /* length */
+
+    /* Interaction operators */
+    BI_PRINT,   /* print */
+
+    /* Unknown type of build-in function */
+    BI_UNKNOWN
+} BuildinType;
 
 /**
  * Get type of primitive function by its name

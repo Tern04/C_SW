@@ -12,10 +12,10 @@
  * Get type of primitive function by its name
  */
 BuildinType get_buildin_type(const char* name) {
-    if (strcmp(name, "+") == 0) return PRIM_ADD;
-    if (strcmp(name, "-") == 0) return PRIM_SUB;
-    if (strcmp(name, "*") == 0) return PRIM_MUL;
-    if (strcmp(name, "/") == 0) return PRIM_DIV;
+    if (strcmp(name, "+") == 0) return BI_ADD;
+    if (strcmp(name, "-") == 0) return BI_SUB;
+    if (strcmp(name, "*") == 0) return BI_MUL;
+    if (strcmp(name, "/") == 0) return BI_DIV;
     if (strcmp(name, "SET") == 0) return BI_SET;
     if (strcmp(name, "IF") == 0) return BI_IF;
     if (strcmp(name, "WHILE") == 0) return BI_WHILE;
