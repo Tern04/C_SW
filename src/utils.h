@@ -50,6 +50,6 @@ void print_value(const Value* value);
  * Print variables in the environment
  * @param env Environment with variables
  */
-void print_env(Env* env);
+void print_env(const Env* env);
 
 #endif /* C_SW_UTILS_H */

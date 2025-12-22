@@ -56,7 +56,7 @@ Value* prim_add(Value** args, const int args_count) {
 /*
  * Lisp subdivision primitive function (-)
  */
-Value* prim_sub(Value** args, int args_count) {
+Value* prim_sub(Value** args, const int args_count) {
     Value* result;
     long diff;
     int i;
@@ -91,7 +91,7 @@ Value* prim_sub(Value** args, int args_count) {
 /*
  * Lisp multiplication primitive function (*)
  */
-Value* prim_mul(Value** args, int args_count) {
+Value* prim_mul(Value** args, const int args_count) {
     Value* result;
     long product;
     int i;
@@ -122,7 +122,7 @@ Value* prim_mul(Value** args, int args_count) {
  * Lisp division primitive function (/)
  * Division is rounded only to whole numbers. - could be improved in the future.
  */
-Value* prim_div(Value** args, int args_count) {
+Value* prim_div(Value** args, const int args_count) {
     Value* result;
     long quotient;
     int i;

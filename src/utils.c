@@ -24,7 +24,9 @@ void skip_whitespace(char** input) {
  */
 void string_to_uppercase(char* input) {
     char current_char;
-    const int ascii_offset = 'a' - 'A'; /* Difference between lowercase and uppercase in ASCII */
+    int ascii_offset;
+
+    ascii_offset = 'a' - 'A'; /* Difference between lowercase and uppercase in ASCII */
 
     if (input == NULL) {
         return;
@@ -142,7 +144,7 @@ void print_value(const Value* value) {
 /**
  * Print variables in the environment
  */
-void print_env(Env* env) {
+void print_env(const Env* env) {
     int i;
 
     printf("Variables in the environment:");
