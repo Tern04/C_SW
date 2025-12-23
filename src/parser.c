@@ -12,7 +12,6 @@ Node* parse_expression(Tokenizer* tokenizer) {
     Token token;
     Node* node;
     Node* quote_list;
-    Node* quote_symbol;
     Node* quoted_expr;
 
     node = NULL;
@@ -24,29 +23,20 @@ Node* parse_expression(Tokenizer* tokenizer) {
             node = parse_atom(token);
             token_cleanup(&token);
             break;
-        case TOKEN_SYMBOL:
-            /* Check if this is the special "quote" symbol */
-            if (strcmp(token.text, "quote") == 0) {
-                /* Transform quote into (quote <expression>) */
-                quote_list = create_list_node();
+        case TOKEN_QUOTE:
+            quote_list = create_list_node();
+            add_child_to_list(quote_list, create_symbol_node("QUOTE"));
 
-                /* Add "quote" symbol as first child */
-                quote_symbol = create_symbol_node("quote");
-                add_child_to_list(quote_list, quote_symbol);
-
-                /* Parse the next expression and add as second child */
-                quoted_expr = parse_expression(tokenizer);
-                if (quoted_expr) {
-                    add_child_to_list(quote_list, quoted_expr);
-                }
-
-                token_cleanup(&token);
-                node = quote_list;
-            } else {
-                /* Normal symbol */
-                node = parse_atom(token);
-                token_cleanup(&token);
+            quoted_expr = parse_expression(tokenizer);
+            if (quoted_expr) {
+                add_child_to_list(quote_list, quoted_expr);
             }
+            token_cleanup(&token);
+            return quote_list;
+        case TOKEN_SYMBOL:
+            /* Normal symbol */
+            node = parse_atom(token);
+            token_cleanup(&token);
             break;
         case TOKEN_LBRACKET:
             token_cleanup(&token);

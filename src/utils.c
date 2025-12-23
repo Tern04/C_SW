@@ -53,6 +53,9 @@ void print_token(Token token) {
         case TOKEN_SYMBOL:
             printf("SYMBOL");
             break;
+        case TOKEN_QUOTE:
+            printf("QUOTE");
+            break;
         case TOKEN_NUMBER:
             printf("NUMBER (value: %ld)", token.number_value);
             break;

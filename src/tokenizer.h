@@ -14,6 +14,7 @@ typedef enum {
     TOKEN_STRING, /* Text in  quotation marks*/
     TOKEN_LBRACKET, /* '(' */
     TOKEN_RBRACKET, /* ')' */
+    TOKEN_QUOTE, /* Quote symbol ' */
     TOKEN_ERROR, /* Error at the tokenization */
     TOKEN_END /* End of input */
 }TokenType;

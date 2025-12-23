@@ -66,7 +66,7 @@ TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
             return TOKEN_STRING;
         case '\'':
             /* Apostrophe => quote symbol */
-            return TOKEN_SYMBOL;
+            return TOKEN_QUOTE;
         default:
             /* Check for positive or negative numbers*/
             if (isdigit(c) || (c == '-' && isdigit(next))) {
