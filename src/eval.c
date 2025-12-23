@@ -74,13 +74,19 @@ Value* eval_list(const Env* env, const Node* node) {
     switch (type) {
         /* Section 1 - special forms will be handled in eval.c */
         case BI_QUOTE:
+            return handle_quote(node);
         case BI_SET:
+            return create_nil_value();
         case BI_INC:
+            return create_nil_value();
         case BI_DEC:
+            return create_nil_value();
         case BI_QUIT:
             handle_quit();
         case BI_IF:
+            return create_nil_value();
         case BI_WHILE:
+            return create_nil_value();
         case BI_BRK:
             /* Handling functions will be implemented - now just return NIL */
             return create_nil_value();
@@ -145,6 +151,38 @@ Value** handle_arguments(const Env* env, const Node* node, int* args_count) {
     return args;
 }
 
+/*
+ * Handles the 'quote' special form
+ */
+Value* handle_quote(const Node* node) {
+    Node * argument;
+
+    /* Check for at least one argument */
+    if (node->value.list.count < 2) {
+        printf("Error: quote requires at least one argument\n");
+        return create_nil_value();
+    }
+
+    argument = node->value.list.children[1];
+
+    switch (argument->type) {
+        case NODE_INT:
+            return create_int_value(argument->value.int_value);
+        case NODE_STRING:
+        case NODE_SYMBOL:
+            return create_string_value(argument->value.text_value);
+        case NODE_LIST:
+            return create_list_value(argument); /* Return the quoted expression as a list value */
+        default:
+            printf("Error: quote requires a list, integer or string as an argument\n");
+            return create_nil_value();
+    }
+
+}
+
+/*
+ * Exits the program
+ */
 void handle_quit(void) {
     printf("Exiting the interpreter...\n");
     exit(0);

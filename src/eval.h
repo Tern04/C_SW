@@ -33,6 +33,13 @@ Value* eval_list(const Env* env, const Node* node);
 Value** handle_arguments(const Env* env, const Node* node, int* args_count);
 
 /**
+ * Handles the 'quote' special form
+ * @param node Node to handle
+ * @return Quoted value
+ */
+Value* handle_quote(const Node* node);
+
+/**
  * Exits the program
  */
 void handle_quit(void);
