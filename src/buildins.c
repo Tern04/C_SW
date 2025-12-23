@@ -8,19 +8,76 @@
 #include <stdlib.h>
 #include <string.h>
 
+const BuildinMapping BUILTIN_TABLE[] = {
+    /* Section for special form operators (eval.c) */
+    {"QUOTE", BI_QUOTE, NULL},
+    {"SET",   BI_SET, NULL},
+    {"INC",   BI_INC, NULL},
+    {"DEC",   BI_DEC, NULL},
+    {"IF",    BI_IF, NULL},
+    {"WHILE", BI_WHILE, NULL},
+    {"QUIT",  BI_QUIT, NULL},
+    {"BRK",   BI_BRK, NULL},
+
+    /* Section for standard build-in functions (buildins.c) */
+    {"+",      BI_ADD, prim_add},
+    {"-",      BI_SUB, prim_sub},
+    {"*",      BI_MUL, prim_mul},
+    {"/",      BI_DIV, prim_div},
+    {"MAX",    BI_MAX, NULL},
+    {"MIN",    BI_MIN, NULL},
+    {"=",      BI_EQ, NULL},
+    {"/=",     BI_NEQ, NULL},
+    {"<",      BI_LT, NULL},
+    {">",      BI_GT, NULL},
+    {"<=",     BI_LTE, NULL},
+    {">=",     BI_GTE, NULL},
+    {"LIST",   BI_LIST, NULL},
+    {"ATOM",   BI_ATOM, NULL},
+    {"CAR",    BI_CAR, NULL},
+    {"CDR",    BI_CDR, NULL},
+    {"NTH",    BI_NTH, NULL},
+    {"LENGTH", BI_LENGTH, NULL},
+    {"PRINT",  BI_PRINT, NULL}
+};
+
+/* Calculate the number of built-in functions in the table */
+const int BUILTIN_COUNT = sizeof(BUILTIN_TABLE) / sizeof(BuildinMapping);
+
+
 /*
- * Get type of primitive function by its name
+ * Get type of built-in function by its name
  */
 BuildinType get_buildin_type(const char* name) {
-    if (strcmp(name, "+") == 0) return BI_ADD;
-    if (strcmp(name, "-") == 0) return BI_SUB;
-    if (strcmp(name, "*") == 0) return BI_MUL;
-    if (strcmp(name, "/") == 0) return BI_DIV;
-    if (strcmp(name, "SET") == 0) return BI_SET;
-    if (strcmp(name, "IF") == 0) return BI_IF;
-    if (strcmp(name, "WHILE") == 0) return BI_WHILE;
+    int i;
+
+    /* Look for the type in the table */
+    for (i = 0; i < BUILTIN_COUNT; i++) {
+        if (strcmp(name, BUILTIN_TABLE[i].name) == 0) {
+            return BUILTIN_TABLE[i].type;
+        }
+    }
+
     return BI_UNKNOWN;
 }
+
+/*
+ * Call the primitive function by its type
+ */
+Value* call_prim_function(const BuildinType type, Value** args, const int args_count) {
+    int i;
+
+    for (i = 0; i < BUILTIN_COUNT; i++) {
+        if (type == BUILTIN_TABLE[i].type) {
+            if (BUILTIN_TABLE[i].function != NULL) {
+                return BUILTIN_TABLE[i].function(args, args_count);
+            }
+            break;
+        }
+    }
+    return create_nil_value();
+}
+
 
 /*
  * Lisp addition primitive function (+)

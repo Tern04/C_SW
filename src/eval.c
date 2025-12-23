@@ -72,36 +72,51 @@ Value* eval_list(const Env* env, const Node* node) {
     type = get_buildin_type(first_elem->value.text_value);
 
     switch (type) {
-        case BI_ADD:
-            args = handle_arguments(env, node, &args_count);
-            result = prim_add(args, args_count);
-            arguments_cleanup(args, args_count);
-            return result;
-        case BI_SUB:
-            args = handle_arguments(env, node, &args_count);
-            result = prim_sub(args, args_count);
-            arguments_cleanup(args, args_count);
-            return result;
-        case BI_MUL:
-            args = handle_arguments(env, node, &args_count);
-            result = prim_mul(args, args_count);
-            arguments_cleanup(args, args_count);
-            return result;
-        case BI_DIV:
-            args = handle_arguments(env, node, &args_count);
-            result = prim_div(args, args_count);
-            arguments_cleanup(args, args_count);
-            return result;
+        /* Section 1 - special forms will be handled in eval.c */
+        case BI_QUOTE:
         case BI_SET:
+        case BI_INC:
+        case BI_DEC:
+        case BI_QUIT:
         case BI_IF:
         case BI_WHILE:
-        case BI_UNKNOWN:
-            printf("Error: unknown primitive function\n");
+        case BI_BRK:
+            /* Handling functions will be implemented - now just return NIL */
             return create_nil_value();
+
+        /* Section 2 - standard primitive functions will be handled in buildins.c */
+        case BI_ADD:
+        case BI_SUB:
+        case BI_MUL:
+        case BI_DIV:
+        case BI_MAX:
+        case BI_MIN:
+        case BI_EQ:
+        case BI_NEQ:
+        case BI_LT:
+        case BI_GT:
+        case BI_LTE:
+        case BI_GTE:
+        case BI_LIST:
+        case BI_ATOM:
+        case BI_CAR:
+        case BI_CDR:
+        case BI_NTH:
+        case BI_LENGTH:
+        case BI_PRINT:
+            args = handle_arguments(env, node, &args_count); /* Get arguments for the primitive function */
+
+            result = call_prim_function(type, args, args_count); /* Call the right primitive function */
+
+            arguments_cleanup(args, args_count); /* Free the arguments */
+
+            return result; /* Return the result from the primitive function */
+
+
         default:
-            break;
+            printf("Error: Unknown or unimplemented function\n");
+            return create_nil_value();
     }
-    return NULL;
 }
 
 /*

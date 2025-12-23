@@ -6,6 +6,9 @@
 #define C_SW_BUILDINS_H
 #include "value.h"
 
+/* Definition of a pointer to a primitive function */
+typedef Value* (*PrimitiveFunction)(Value** args, int args_count);
+
 /* Enum for types of build in functions */
 typedef enum {
     /* ==========================================================
@@ -61,12 +64,28 @@ typedef enum {
     BI_UNKNOWN
 } BuildinType;
 
+/* Structure for mapping between the function name and its type */
+typedef struct {
+    const char* name; /* Name of the built-in function */
+    BuildinType type; /* Type of the built-in function */
+    PrimitiveFunction function; /* Pointer to the built-in function - NULL for special forms */
+} BuildinMapping;
+
 /**
  * Get type of primitive function by its name
  * @param name First element of a list - name of the primitive function
  * @return Type of primitive function
  */
 BuildinType get_buildin_type(const char* name);
+
+/**
+ * Call the primitive function by its type
+ * @param type Type of the primitive function
+ * @param args Array of argument values
+ * @param args_count Number of arguments
+ * @return Result value of the primitive function
+ */
+Value* call_prim_function(BuildinType type, Value** args, int args_count);
 
 /**
  * Lisp addition primitive function (+)
