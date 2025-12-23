@@ -78,6 +78,7 @@ Value* eval_list(const Env* env, const Node* node) {
         case BI_INC:
         case BI_DEC:
         case BI_QUIT:
+            handle_quit();
         case BI_IF:
         case BI_WHILE:
         case BI_BRK:
@@ -144,6 +145,10 @@ Value** handle_arguments(const Env* env, const Node* node, int* args_count) {
     return args;
 }
 
+void handle_quit(void) {
+    printf("Exiting the interpreter...\n");
+    exit(0);
+}
 
 /*
  * Frees allocated memory of arguments for primitive functions

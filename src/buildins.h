@@ -29,7 +29,7 @@ typedef enum {
     BI_BRK,     /* brk */
 
     /* ==========================================================
-     * Section for standard build-in functions (buildins.c)
+     * Section for standard build-in functions - primitives (buildins.c)
      * They work with already evaluated arguments.
      * ========================================================== */
 

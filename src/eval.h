@@ -33,6 +33,11 @@ Value* eval_list(const Env* env, const Node* node);
 Value** handle_arguments(const Env* env, const Node* node, int* args_count);
 
 /**
+ * Exits the program
+ */
+void handle_quit(void);
+
+/**
  * Frees allocated memory of arguments for primitive functions
  * @param args Arguments to be cleaned up
  * @param count Number of arguments
