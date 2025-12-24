@@ -11,6 +11,7 @@ typedef enum {
     VALUE_INT, /* Integer value */
     VALUE_STRING, /* String value */
     VALUE_LIST, /* Arrays */
+    VALUE_T, /* True value */
     VALUE_NIL /* Nil value */
 }ValueType;
 
@@ -44,6 +45,12 @@ Value* create_string_value(const char* string_value);
  * @return Created value
  */
 Value* create_list_value(Node* node);
+
+/**
+ * Creates a T value - True
+ * @return T value
+ */
+Value* create_t_value(void);
 
 /**
  * Creates a NIL value
