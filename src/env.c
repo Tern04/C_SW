@@ -110,6 +110,7 @@ void env_cleanup(Env* env) {
     for (i = 0; i < env->count; i++) {
         free(env->names[i]);
         value_cleanup(env->values[i]); /* Free the Value structure */
+        free(env->values[i]);
     }
 
     free(env->names);

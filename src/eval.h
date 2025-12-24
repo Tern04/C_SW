@@ -48,6 +48,16 @@ Value* handle_quote(const Node* node);
 Value* handle_set(Env* env, const Node* node);
 
 /**
+ * Handles the INC and DEC - Increment or decrement variable in the environment
+ * Using one method for both operations to reduce code duplication
+ * @param env Environment with variables
+ * @param node Node to handle
+ * @param flag 1 - handles the increment | -1 - handles the decrement
+ * @return Value of the operation or NIL if error
+ */
+Value* handle_inc_dec(Env* env, const Node* node, int flag);
+
+/**
  * Exits the program
  */
 void handle_quit(void);

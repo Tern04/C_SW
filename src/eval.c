@@ -79,9 +79,9 @@ Value* eval_list(Env* env, const Node* node) {
         case BI_SET:
             return handle_set(env, node);
         case BI_INC:
-            return create_nil_value();
+            return handle_inc_dec(env, node, 1);
         case BI_DEC:
-            return create_nil_value();
+            return handle_inc_dec(env, node, -1);
         case BI_QUIT:
             handle_quit();
         case BI_IF:
@@ -224,6 +224,89 @@ Value* handle_set(Env* env, const Node* node) {
 
     /* Return a copy of the set value */
     return create_value_copy(value);
+}
+
+/*
+ * Handles the INC and DEC - Increment or decrement variable in the environment
+ * Using one method for both operations to reduce code duplication
+ */
+Value* handle_inc_dec(Env* env, const Node* node, int flag) {
+    Value* name_value;
+    Value* argument;
+    Value* env_value;
+    Value* return_value;
+    char* name;
+    long new_result;
+
+    /* Check for exactly two arguments */
+    if (node->value.list.count != 3) {
+        printf("Error: Inc/Dec requires exactly two arguments\n");
+        return create_nil_value();
+    }
+
+    /* Check for the variable name - must be a symbol */
+    name_value = eval(env, node->value.list.children[1]);
+    if (!name_value || name_value->type != VALUE_STRING) {
+        printf("Error: Variable name must be a symbol\n");
+
+        /* Cleanup */
+        if (name_value) {
+            value_cleanup(name_value);
+            free(name_value);
+        }
+        return create_nil_value();
+    }
+
+    name = name_value->data.string_value; /* Get the variable name */
+
+    argument = eval(env, node->value.list.children[2]); /* Evaluate the argument */
+
+    /* Check for integer argument */
+    if (!argument || argument->type != VALUE_INT) {
+        printf("Error: Second argument must be an integer\n");
+
+        /* Cleanup name_value*/
+        value_cleanup(name_value);
+        free(name_value);
+
+        /* Cleanup argument */
+        if (argument) {
+            value_cleanup(argument); free(argument);
+        }
+        return create_nil_value();
+    }
+
+    env_value = env_get_value(env, name); /* Get the current value from the environment */
+
+    /* Check if the variable exists and is an integer */
+    if (!env_value || env_value->type != VALUE_INT) {
+        printf("Error: Variable '%s' is not a defined integer\n", name);
+
+        /* Cleanup */
+        value_cleanup(name_value);
+        free(name_value);
+        value_cleanup(argument);
+        free(argument);
+
+        return create_nil_value();
+    }
+
+    /* Save the new result with increment or decrement */
+    new_result = env_value->data.int_value + (argument->data.int_value * flag);
+
+    /* Save the new value back to the environment */
+    env_set_variable(env, name, create_int_value(new_result));
+
+    return_value = create_int_value(new_result);
+
+    /* Free the name_value and argument */
+    value_cleanup(name_value);
+    free(name_value);
+    value_cleanup(argument);
+    free(argument);
+
+    /* Return a copy of the updated value */
+    return return_value;
 }
 
 /*
