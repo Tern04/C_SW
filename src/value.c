@@ -148,6 +148,28 @@ Value* create_value_copy(const Value* value) {
     return copy;
 
 }
+/*
+ * Creates a Value from a Node
+ */
+Value* create_value_from_node(Node* node) {
+
+    /* Check for NULL pointer */
+    if (!node) {
+        return create_nil_value();
+    }
+
+    switch (node->type) {
+        case NODE_INT:
+            return create_int_value(node->value.int_value); /* Create int value */
+        case NODE_STRING:
+            return create_string_value(node->value.text_value); /* Create string value */
+        case NODE_LIST:
+            return create_list_value(node); /* Create list value */
+        default:
+            return create_nil_value(); /* Unsupported node type */
+    }
+
+}
 
 /*
  * Frees allocated memory inside a Value structure

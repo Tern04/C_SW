@@ -4,6 +4,7 @@
 
 #ifndef C_SW_S_EXP_H
 #define C_SW_S_EXP_H
+#include "value.h"
 
 /* Types of node */
 typedef enum {
@@ -59,5 +60,12 @@ Node* create_list_node(void);
  * @return Copy of a node
  */
 Node* create_node_copy(Node* node);
+
+/**
+ * Creates a node from a value based on its type
+ * @param value value to be converted
+ * @return Created node
+ */
+Node* create_node_from_value(Value* value);
 
 #endif /* C_SW_S_EXP_H */

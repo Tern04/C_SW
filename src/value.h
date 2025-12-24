@@ -66,6 +66,13 @@ Value* create_nil_value(void);
 Value* create_value_copy(const Value* value);
 
 /**
+ * Creates a Value from a Node
+ * @param node Node to be converted to Value
+ * @return Value created from the node
+ */
+Value* create_value_from_node(Node* node);
+
+/**
  * Frees allocated memory inside a Value structure
  * Only string values require a cleanup
  * @param value Value to be freed

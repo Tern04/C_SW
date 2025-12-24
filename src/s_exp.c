@@ -129,4 +129,36 @@ Node* create_node_copy(Node* node) {
 
 }
 
+/**
+ * Creates a node from a value based on its type
+ * @param value value to be converted
+ * @return Created node
+ */
+Node* create_node_from_value(Value* value) {
+    /* Check for NULL pointer */
+    if (!value) {
+        return NULL;
+    }
+
+    switch (value->type) {
+        case VALUE_INT:
+            return create_int_node(value->data.int_value); /* Create int node */
+        case VALUE_STRING:
+            return create_string_node(value->data.string_value); /* Create string node */
+        case VALUE_T:
+            return create_symbol_node("t"); /* Create T symbol node */
+        case VALUE_NIL:
+            return create_symbol_node("nil"); /* Create NIL symbol node */
+        case VALUE_LIST:
+            /* Create a node from value data if it has them */
+            if (value->data.list_node) {
+                return create_node_copy(value->data.list_node); /* Create a copy of the list node */
+            }
+            return create_list_node(); /* Else create an empty list node */
+        default:
+            return NULL;
+    }
+
+}
+
 
