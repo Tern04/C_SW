@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils.h"
+
 const BuildinMapping BUILTIN_TABLE[] = {
     /* Section for special form operators (eval.c) */
     {"QUOTE", BI_QUOTE, NULL},
@@ -38,12 +40,11 @@ const BuildinMapping BUILTIN_TABLE[] = {
     {"CDR",    BI_CDR, NULL},
     {"NTH",    BI_NTH, NULL},
     {"LENGTH", BI_LENGTH, NULL},
-    {"PRINT",  BI_PRINT, NULL}
+    {"PRINT",  BI_PRINT, prim_print}
 };
 
 /* Calculate the number of built-in functions in the table */
-const int BUILTIN_COUNT = sizeof(BUILTIN_TABLE) / sizeof(BuildinMapping);
-
+static const int BUILTIN_COUNT = sizeof(BUILTIN_TABLE) / sizeof(BuildinMapping);
 
 /*
  * Get type of built-in function by its name
@@ -209,5 +210,22 @@ Value* prim_div(Value** args, const int args_count) {
     }
     result = create_int_value(quotient);
     return result;
-
 }
+
+Value* prim_print(Value** args, const int args_count) {
+    /* Check for exactly one argument */
+    if (args_count != 1) {
+        printf("Error: PRINT expects exactly 1 argument\n");
+        return create_nil_value();
+    }
+
+    /* Print with a function from utils.c */
+    if (args[0]) {
+        print_value(args[0]);
+        printf("\n"); /* Add newline after printing */
+    }
+
+    /* Return printed value */
+    return create_value_copy(args[0]);
+}
+

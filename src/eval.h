@@ -13,7 +13,7 @@
  * @param node Node to evaluate
  * @return Value from the evaluation
  */
-Value* eval(const Env* env, const Node* node);
+Value* eval(Env* env, const Node* node);
 
 /**
  * Evaluates the list based on its first element - primitive function
@@ -21,7 +21,7 @@ Value* eval(const Env* env, const Node* node);
  * @param node Node to evaluate
  * @return Value from the evaluation
  */
-Value* eval_list(const Env* env, const Node* node);
+Value* eval_list(Env* env, const Node* node);
 
 /**
  * Prepares array of evaluated argument values from node's children
@@ -30,14 +30,22 @@ Value* eval_list(const Env* env, const Node* node);
  * @param args_count Store number of arguments
  * @return Array of evaluated argument values
  */
-Value** handle_arguments(const Env* env, const Node* node, int* args_count);
+Value** handle_arguments(Env* env, const Node* node, int* args_count);
 
 /**
- * Handles the 'quote' special form
+ * Handles the QUOTE - returns the argument without evaluation
  * @param node Node to handle
  * @return Quoted value
  */
 Value* handle_quote(const Node* node);
+
+/**
+ * Handles the SET - Save or update variable in the environment
+ * @param env Environment with variables
+ * @param node Node to handle
+ * @return Value of the set operation
+ */
+Value* handle_set(Env* env, const Node* node);
 
 /**
  * Exits the program

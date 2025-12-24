@@ -120,6 +120,14 @@ Value* prim_mul(Value** args, int args_count);
  */
 Value* prim_div(Value** args, int args_count);
 
+/**
+ * Lisp print primitive function (print)
+ * @param args Argument values to be printed
+ * @param args_count Number of arguments
+ * @return Printed value
+ */
+Value* prim_print(Value** args, int args_count);
+
 
 
 #endif /* C_SW_BUILDINS_H */

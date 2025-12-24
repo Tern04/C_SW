@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "env.h"
 #include "buildins.h"
@@ -16,7 +17,7 @@
 /*
  * Main evaluation function
  */
-Value* eval(const Env* env, const Node* node) {
+Value* eval(Env* env, const Node* node) {
     Value* value;
 
     switch (node->type) {
@@ -49,7 +50,7 @@ Value* eval(const Env* env, const Node* node) {
 /*
  * Evaluates the list based on its first element - primitive function
  */
-Value* eval_list(const Env* env, const Node* node) {
+Value* eval_list(Env* env, const Node* node) {
     BuildinType type;
     Node* first_elem;
     Value* result;
@@ -76,7 +77,7 @@ Value* eval_list(const Env* env, const Node* node) {
         case BI_QUOTE:
             return handle_quote(node);
         case BI_SET:
-            return create_nil_value();
+            return handle_set(env, node);
         case BI_INC:
             return create_nil_value();
         case BI_DEC:
@@ -129,7 +130,7 @@ Value* eval_list(const Env* env, const Node* node) {
 /*
  * Prepares array of evaluated argument values from node's children
  */
-Value** handle_arguments(const Env* env, const Node* node, int* args_count) {
+Value** handle_arguments(Env* env, const Node* node, int* args_count) {
     Value** args;
     int count;
     int i;
@@ -152,7 +153,7 @@ Value** handle_arguments(const Env* env, const Node* node, int* args_count) {
 }
 
 /*
- * Handles the 'quote' special form
+ * Handles the QUOTE - returns the argument without evaluation
  */
 Value* handle_quote(const Node* node) {
     Node * argument;
@@ -178,6 +179,51 @@ Value* handle_quote(const Node* node) {
             return create_nil_value();
     }
 
+}
+
+/*
+ * Handles the SET - Save or update variable in the environment
+ */
+Value* handle_set(Env* env, const Node* node) {
+    Value* name_value;
+    Value* value;
+    char* name;
+
+    /* Check for at least two arguments - name and value */
+    if (node->value.list.count < 3) {
+        printf("Error: set requires at least two arguments - name and value\n");
+        return create_nil_value(); /* Return NIL on error */
+    }
+
+    name_value = eval(env, node->value.list.children[1]); /* Evaluate the name of the variable */
+
+    /* Check if the name is found and if it is a string */
+    if (!name_value || name_value->type != VALUE_STRING) {
+        printf("Error: set requires a string as a variable name\n");
+
+        /* Free the name value if it was allocated */
+        if (name_value) {
+            value_cleanup(name_value);
+            free(name_value);
+        }
+        return create_nil_value(); /* Return NIL on error */
+    }
+
+    /* The first argument is a variable name */
+    name = name_value->data.string_value;
+
+    /* Evaluate the value to be set */
+    value = eval(env, node->value.list.children[2]);
+
+    /* If it does not exist, create a new variable */
+    env_set_variable(env, name, value);
+
+    /* Free the name value */
+    value_cleanup(name_value);
+    free(name_value);
+
+    /* Return a copy of the set value */
+    return create_value_copy(value);
 }
 
 /*
