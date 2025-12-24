@@ -28,12 +28,12 @@ const BuildinMapping BUILTIN_TABLE[] = {
     {"/",      BI_DIV, prim_div},
     {"MAX",    BI_MAX, NULL},
     {"MIN",    BI_MIN, NULL},
-    {"=",      BI_EQ, NULL},
-    {"/=",     BI_NEQ, NULL},
-    {"<",      BI_LT, NULL},
-    {">",      BI_GT, NULL},
-    {"<=",     BI_LTE, NULL},
-    {">=",     BI_GTE, NULL},
+    {"=",      BI_EQ, prim_compare},
+    {"/=",     BI_NEQ, prim_compare},
+    {"<",      BI_LT, prim_compare},
+    {">",      BI_GT, prim_compare},
+    {"<=",     BI_LTE, prim_compare},
+    {">=",     BI_GTE, prim_compare},
     {"LIST",   BI_LIST, NULL},
     {"ATOM",   BI_ATOM, NULL},
     {"CAR",    BI_CAR, NULL},
@@ -71,7 +71,7 @@ Value* call_prim_function(const BuildinType type, Value** args, const int args_c
     for (i = 0; i < BUILTIN_COUNT; i++) {
         if (type == BUILTIN_TABLE[i].type) {
             if (BUILTIN_TABLE[i].function != NULL) {
-                return BUILTIN_TABLE[i].function(args, args_count);
+                return BUILTIN_TABLE[i].function(type, args, args_count);
             }
             break;
         }
@@ -83,7 +83,7 @@ Value* call_prim_function(const BuildinType type, Value** args, const int args_c
 /*
  * Lisp addition primitive function (+)
  */
-Value* prim_add(Value** args, const int args_count) {
+Value* prim_add(const BuildinType type, Value** args, const int args_count) {
     Value* result;
     long sum;
     int i;
@@ -114,7 +114,7 @@ Value* prim_add(Value** args, const int args_count) {
 /*
  * Lisp subdivision primitive function (-)
  */
-Value* prim_sub(Value** args, const int args_count) {
+Value* prim_sub(const BuildinType type, Value** args, const int args_count) {
     Value* result;
     long diff;
     int i;
@@ -149,7 +149,7 @@ Value* prim_sub(Value** args, const int args_count) {
 /*
  * Lisp multiplication primitive function (*)
  */
-Value* prim_mul(Value** args, const int args_count) {
+Value* prim_mul(const BuildinType type, Value** args, const int args_count) {
     Value* result;
     long product;
     int i;
@@ -180,7 +180,7 @@ Value* prim_mul(Value** args, const int args_count) {
  * Lisp division primitive function (/)
  * Division is rounded only to whole numbers. - could be improved in the future.
  */
-Value* prim_div(Value** args, const int args_count) {
+Value* prim_div(const BuildinType type, Value** args, const int args_count) {
     Value* result;
     long quotient;
     int i;
@@ -212,7 +212,9 @@ Value* prim_div(Value** args, const int args_count) {
     return result;
 }
 
-Value* prim_print(Value** args, const int args_count) {
+Value* prim_print(const BuildinType type, Value** args, const int args_count) {
+    (void) type; /* Type of function will not be used in this method */
+
     /* Check for exactly one argument */
     if (args_count != 1) {
         printf("Error: PRINT expects exactly 1 argument\n");
@@ -229,3 +231,71 @@ Value* prim_print(Value** args, const int args_count) {
     return create_value_copy(args[0]);
 }
 
+Value* prim_compare(const BuildinType type, Value** args, const int args_count) {
+    long a;
+    long b;
+    int res;
+    int i;
+    int j;
+
+    /* Check for at least two arguments */
+    if (args_count == 0) {
+        printf("Error: Comparison operators expect at least one argument\n");
+        return create_nil_value();
+    }
+
+    /* A single argument is always true */
+    if (args_count == 1) {
+        return create_t_value(); /* A single argument is always true */
+    }
+
+    /* Check that all arguments are integers */
+    for (i = 0; i < args_count; i++) {
+        if (args[i]->type != VALUE_INT) {
+            printf("Error: Comparison operators expect integer arguments\n");
+            return create_nil_value();
+        }
+    }
+
+    /* Handle BIQ comparison type */
+    if (type == BI_NEQ) {
+        for (i = 0; i < args_count - 1; i++) {
+            for (j = i + 1; j < args_count; j++) {
+                if (args[i]->data.int_value == args[j]->data.int_value) {
+                    return create_nil_value();
+                }
+            }
+        }
+        return create_t_value();
+    }
+
+    for (i = 0; i < args_count - 1; i++) {
+        a = args[i]->data.int_value;
+        b = args[i + 1]->data.int_value;
+
+        switch (type) {
+            case BI_EQ:
+                res = a == b;
+                break;
+            case BI_LT:
+                res = a < b;
+                break;
+            case BI_LTE:
+                res = a <= b;
+                break;
+            case BI_GT:
+                res = a > b;
+                break;
+            case BI_GTE:
+                res = a >= b;
+                break;
+            default:
+                printf("Error: Unknown comparison operator\n");
+                return create_nil_value();
+        }
+        if (!res) {
+            return create_nil_value();
+        }
+    }
+    return create_t_value();
+}

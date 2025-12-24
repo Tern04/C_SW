@@ -6,9 +6,6 @@
 #define C_SW_BUILDINS_H
 #include "value.h"
 
-/* Definition of a pointer to a primitive function */
-typedef Value* (*PrimitiveFunction)(Value** args, int args_count);
-
 /* Enum for types of build in functions */
 typedef enum {
     /* ==========================================================
@@ -64,6 +61,9 @@ typedef enum {
     BI_UNKNOWN
 } BuildinType;
 
+/* Definition of a pointer to a primitive function */
+typedef Value* (*PrimitiveFunction)(BuildinType type,Value** args, int args_count);
+
 /* Structure for mapping between the function name and its type */
 typedef struct {
     const char* name; /* Name of the built-in function */
@@ -89,44 +89,58 @@ Value* call_prim_function(BuildinType type, Value** args, int args_count);
 
 /**
  * Lisp addition primitive function (+)
+ * @param type Type of primitive function
  * @param args Array of argument values
  * @param args_count Number of arguments
  * @return Result value of the addition
  */
-Value* prim_add(Value** args, int args_count);
+Value* prim_add(BuildinType type, Value** args, int args_count);
 
 /**
  * Lisp subtraction primitive function (-)
+ * @param type Type of primitive function
  * @param args Array of argument values
  * @param args_count Number of arguments
  * @return Result value of the subtraction
  */
-Value* prim_sub(Value** args, int args_count);
+Value* prim_sub(BuildinType type, Value** args, int args_count);
 
 /**
  * Lisp multiplication primitive function (*)
+ * @param type Type of primitive function
  * @param args Array of argument values
  * @param args_count Number of arguments
  * @return Result value of the multiplication
  */
-Value* prim_mul(Value** args, int args_count);
+Value* prim_mul(BuildinType type, Value** args, int args_count);
 
 /**
  * Lisp division primitive function (/)
  * Division is rounded only to whole numbers. - Could be improved in the future.
+ * @param type Type of primitive function
  * @param args Array of argument values
  * @param args_count Number of arguments
  * @return Result value of the division
  */
-Value* prim_div(Value** args, int args_count);
+Value* prim_div(BuildinType type, Value** args, int args_count);
 
 /**
  * Lisp print primitive function (print)
- * @param args Argument values to be printed
+ * @param type Type of primitive function
+ * @param args Array of argument values to be printed
  * @param args_count Number of arguments
  * @return Printed value
  */
-Value* prim_print(Value** args, int args_count);
+Value* prim_print(BuildinType type, Value** args, int args_count);
+
+/**
+ * Lisp comparison primitive function (=, /=, <, >, <=, >=)
+ * @param type Type of comparison ( =, /=, <, >, <=, >= )
+ * @param args Array of argument values
+ * @param args_count Number of arguments
+ * @return Result value of the comparison (T or NIL)
+ */
+Value* prim_compare(BuildinType type, Value** args, int args_count);
 
 
 

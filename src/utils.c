@@ -133,6 +133,9 @@ void print_value(const Value* value) {
     if (value->type == VALUE_NIL) {
         printf("NIL");
     }
+    else if (value->type == VALUE_T) {
+        printf("T");
+    }
     else if (value->type == VALUE_INT) {
         printf("%ld", value->data.int_value);
     }
