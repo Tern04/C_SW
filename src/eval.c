@@ -230,7 +230,7 @@ Value* handle_set(Env* env, const Node* node) {
  * Handles the INC and DEC - Increment or decrement variable in the environment
  * Using one method for both operations to reduce code duplication
  */
-Value* handle_inc_dec(Env* env, const Node* node, int flag) {
+Value* handle_inc_dec(Env* env, const Node* node, const int flag) {
     Value* name_value;
     Value* argument;
     Value* env_value;

@@ -88,41 +88,13 @@ BuildinType get_buildin_type(const char* name);
 Value* call_prim_function(BuildinType type, Value** args, int args_count);
 
 /**
- * Lisp addition primitive function (+)
+ * Lisp arithmetic functions (+, -, *, /)
  * @param type Type of primitive function
- * @param args Array of argument values
+ * @param args Array of arguments
  * @param args_count Number of arguments
- * @return Result value of the addition
+ * @return Result value of the arithmetic operation
  */
-Value* prim_add(BuildinType type, Value** args, int args_count);
-
-/**
- * Lisp subtraction primitive function (-)
- * @param type Type of primitive function
- * @param args Array of argument values
- * @param args_count Number of arguments
- * @return Result value of the subtraction
- */
-Value* prim_sub(BuildinType type, Value** args, int args_count);
-
-/**
- * Lisp multiplication primitive function (*)
- * @param type Type of primitive function
- * @param args Array of argument values
- * @param args_count Number of arguments
- * @return Result value of the multiplication
- */
-Value* prim_mul(BuildinType type, Value** args, int args_count);
-
-/**
- * Lisp division primitive function (/)
- * Division is rounded only to whole numbers. - Could be improved in the future.
- * @param type Type of primitive function
- * @param args Array of argument values
- * @param args_count Number of arguments
- * @return Result value of the division
- */
-Value* prim_div(BuildinType type, Value** args, int args_count);
+Value* prim_arithmetics(BuildinType type , Value** args, int args_count);
 
 /**
  * Lisp print primitive function (print)
