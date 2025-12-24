@@ -84,6 +84,7 @@ Value* call_prim_function(const BuildinType type, Value** args, const int args_c
 Value* prim_arithmetics(BuildinType type , Value** args, const int args_count) {
     Value* result;
     long res;
+    long first_arg;
     int i;
 
     /* Check for at least one argument */
@@ -100,6 +101,8 @@ Value* prim_arithmetics(BuildinType type , Value** args, const int args_count) {
         }
     }
 
+    first_arg = args[0]->data.int_value;
+
     switch (type) {
         case BI_ADD:
             res = 0;
@@ -109,10 +112,10 @@ Value* prim_arithmetics(BuildinType type , Value** args, const int args_count) {
             break;
         case BI_SUB:
             if (args_count == 1) {
-                res = -args[0]->data.int_value;
+                res = -first_arg;
                 break;
             }
-            res = args[0]->data.int_value;
+            res = first_arg;
             for (i = 1; i < args_count; i++) {
                 res -= args[i]->data.int_value;
             }
@@ -128,13 +131,29 @@ Value* prim_arithmetics(BuildinType type , Value** args, const int args_count) {
                 printf("Error: Division needs at least two arguments\n");
                 return create_nil_value();
             }
-            res = args[0]->data.int_value;
+            res = first_arg;
             for (i = 1; i < args_count; i++) {
                 if (args[i]->data.int_value == 0) {
                     printf("Error: Division by zero\n");
                     return create_nil_value();
                 }
                 res /= args[i]->data.int_value;
+            }
+            break;
+        case BI_MAX:
+            res = first_arg;
+            for (i = 1; i < args_count; i++) {
+                if (args[i]->data.int_value > res) {
+                    res = args[i]->data.int_value;
+                }
+            }
+            break;
+        case BI_MIN:
+            res = first_arg;
+            for (i = 1; i < args_count; i++) {
+                if (args[i]->data.int_value < res) {
+                    res = args[i]->data.int_value;
+                }
             }
             break;
         default:
@@ -231,4 +250,30 @@ Value* prim_compare(const BuildinType type, Value** args, const int args_count) 
         }
     }
     return create_t_value();
+}
+
+/*
+ * Lisp list operations (LIST, ATOM, CAR, CDR, NTH, LENGTH)
+ */
+Value* prim_list_ops(BuildinType type, Value** args, int args_count) {
+    Value* result;
+
+    switch (type) {
+        case BI_LIST:
+            break;
+        case BI_ATOM:
+            if (args_count == 1) {
+                return create_t_value();
+            }
+            return create_nil_value();
+        case BI_CAR:
+        case BI_CDR:
+        case BI_NTH:
+        case BI_LENGTH:
+            break;
+        default:
+            return create_nil_value();
+
+    }
+
 }

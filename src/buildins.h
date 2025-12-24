@@ -88,8 +88,8 @@ BuildinType get_buildin_type(const char* name);
 Value* call_prim_function(BuildinType type, Value** args, int args_count);
 
 /**
- * Lisp arithmetic functions (+, -, *, /)
- * @param type Type of primitive function
+ * Lisp arithmetic functions (+, -, *, /, MIN, MAX)
+ * @param type Type of arithmetic operation (+, -, *, /, MIN, MAX)
  * @param args Array of arguments
  * @param args_count Number of arguments
  * @return Result value of the arithmetic operation
@@ -107,12 +107,21 @@ Value* prim_print(BuildinType type, Value** args, int args_count);
 
 /**
  * Lisp comparison primitive function (=, /=, <, >, <=, >=)
- * @param type Type of comparison ( =, /=, <, >, <=, >= )
+ * @param type Type of comparison (=, /=, <, >, <=, >=)
  * @param args Array of argument values
  * @param args_count Number of arguments
  * @return Result value of the comparison (T or NIL)
  */
 Value* prim_compare(BuildinType type, Value** args, int args_count);
+
+/**
+ * Lisp list operations (LIST, ATOM, CAR, CDR, NTH, LENGTH)
+ * @param type Type of list operation (LIST, ATOM, CAR, CDR, NTH, LENGTH)
+ * @param args Array of argument values
+ * @param args_count Number of arguments
+ * @return Result value of the list operation
+ */
+Value* prim_list_ops(BuildinType type, Value** args, int args_count);
 
 
 
