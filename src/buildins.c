@@ -2,12 +2,16 @@
 * Created by Tomáš Rybák on 19.10.2025.
 */
 
-#include "buildins.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "parser.h"
+#include "value.h"
 #include "utils.h"
+#include "buildins.h"
+
 
 const BuildinMapping BUILTIN_TABLE[] = {
     /* Section for special form operators (eval.c) */
@@ -253,27 +257,78 @@ Value* prim_compare(const BuildinType type, Value** args, const int args_count) 
 }
 
 /*
- * Lisp list operations (LIST, ATOM, CAR, CDR, NTH, LENGTH)
+ * Lisp list primitive function (list)
  */
-Value* prim_list_ops(BuildinType type, Value** args, int args_count) {
+Value* prim_list(BuildinType type, Value** args, int args_count) {
     Value* result;
+    Node* list;
+    Node* child;
+    int i;
 
-    switch (type) {
-        case BI_LIST:
-            break;
-        case BI_ATOM:
-            if (args_count == 1) {
-                return create_t_value();
-            }
-            return create_nil_value();
-        case BI_CAR:
-        case BI_CDR:
-        case BI_NTH:
-        case BI_LENGTH:
-            break;
-        default:
-            return create_nil_value();
+    (void) type; /* Type of function will not be used in this method */
 
+    list = create_list_node(); /* Create an empty list node */
+    list->value.list.count = args_count; /* Set the number of children */
+    list->value.list.children = malloc(sizeof(Node*) * args_count); /* Allocate memory for children */
+
+    /* Check for allocation failure */
+    if (!list->value.list.children) {
+        return create_nil_value();
     }
 
+    for (i = 0; i < args_count; i++) {
+        child = create_node_from_value(args[i]);  /* Create a node from each argument value */
+        list->value.list.children[i] = child; /* Add child to the list */
+    }
+
+    result = create_list_value(list); /* Create a value from the list node */
+
+    /* Free the list node */
+    node_cleanup(list);
+    free(list);
+
+    return result;
 }
+
+/*
+ * Lisp atom primitive function (atom)
+ */
+Value* prim_atom(const BuildinType type, Value** args, const int args_count) {
+    (void) type; /* Type of function will not be used in this method */
+
+    /* Check for exactly one argument */
+    if (args_count != 1) {
+        printf("Error: ATOM expects exactly 1 argument\n");
+        return create_nil_value();
+    }
+
+    /* Everything except a list is an atom */
+    if (args[0]->type != VALUE_LIST) {
+        return create_t_value(); /* It is an atom */
+    }
+    return create_nil_value(); /* It is a list, so not an atom */
+}
+
+/*
+ * Lisp get element primitive functions (car, nth)
+ * car - returns the first element of the list
+ * nth - returns the nth element of the list
+ */
+Value* prim_get_element(BuildinType type, Value** args, int args_count) {
+    return NULL;
+}
+
+/*
+ * Lisp cdr primitive function (cdr)
+ */
+Value* prim_cdr(BuildinType type, Value** args, int args_count) {
+    return NULL;
+}
+
+/*
+ * Lisp length primitive function (length)
+ */
+Value* prim_length(BuildinType type, Value** args, int args_count) {
+    return NULL;
+}
+

@@ -4,10 +4,11 @@
 
 #ifndef C_SW_BUILDINS_H
 #define C_SW_BUILDINS_H
-#include "value.h"
+
+struct Value;
 
 /* Enum for types of build in functions */
-typedef enum {
+typedef enum BuildinType{
     /* ==========================================================
      * Section for special form operators (eval.c)
      * They work directly with unevaluated arguments from the AST.
@@ -62,10 +63,10 @@ typedef enum {
 } BuildinType;
 
 /* Definition of a pointer to a primitive function */
-typedef Value* (*PrimitiveFunction)(BuildinType type,Value** args, int args_count);
+typedef struct Value* (*PrimitiveFunction)(BuildinType type, struct Value** args, int args_count);
 
 /* Structure for mapping between the function name and its type */
-typedef struct {
+typedef struct BuildinMapping{
     const char* name; /* Name of the built-in function */
     BuildinType type; /* Type of the built-in function */
     PrimitiveFunction function; /* Pointer to the built-in function - NULL for special forms */
@@ -85,7 +86,7 @@ BuildinType get_buildin_type(const char* name);
  * @param args_count Number of arguments
  * @return Result value of the primitive function
  */
-Value* call_prim_function(BuildinType type, Value** args, int args_count);
+struct Value* call_prim_function(BuildinType type, struct Value** args, int args_count);
 
 /**
  * Lisp arithmetic functions (+, -, *, /, MIN, MAX)
@@ -94,7 +95,7 @@ Value* call_prim_function(BuildinType type, Value** args, int args_count);
  * @param args_count Number of arguments
  * @return Result value of the arithmetic operation
  */
-Value* prim_arithmetics(BuildinType type , Value** args, int args_count);
+struct Value* prim_arithmetics(BuildinType type , struct Value** args, int args_count);
 
 /**
  * Lisp print primitive function (print)
@@ -103,7 +104,7 @@ Value* prim_arithmetics(BuildinType type , Value** args, int args_count);
  * @param args_count Number of arguments
  * @return Printed value
  */
-Value* prim_print(BuildinType type, Value** args, int args_count);
+struct Value* prim_print(BuildinType type, struct Value** args, int args_count);
 
 /**
  * Lisp comparison primitive function (=, /=, <, >, <=, >=)
@@ -112,16 +113,54 @@ Value* prim_print(BuildinType type, Value** args, int args_count);
  * @param args_count Number of arguments
  * @return Result value of the comparison (T or NIL)
  */
-Value* prim_compare(BuildinType type, Value** args, int args_count);
+struct Value* prim_compare(BuildinType type, struct Value** args, int args_count);
 
 /**
- * Lisp list operations (LIST, ATOM, CAR, CDR, NTH, LENGTH)
- * @param type Type of list operation (LIST, ATOM, CAR, CDR, NTH, LENGTH)
+ * Lisp list primitive function (list)
+ * @param type Type of primitive function
+ * @param args Array of argument values to be put into the list
+ * @param args_count Number of arguments
+ * @return Created list value
+ */
+struct Value* prim_list(BuildinType type, struct Value** args, int args_count);
+
+/**
+ * Lisp atom primitive function (atom)
+ * @param type Type of primitive function
  * @param args Array of argument values
  * @param args_count Number of arguments
- * @return Result value of the list operation
+ * @return Result value (T or NIL)
  */
-Value* prim_list_ops(BuildinType type, Value** args, int args_count);
+struct Value* prim_atom(BuildinType type, struct Value** args, int args_count);
+
+/**
+ * Lisp get element primitive functions (car, nth)
+ * car - returns the first element of the list
+ * nth - returns the nth element of the list
+ * @param type Type of primitive function
+ * @param args Array of argument values
+ * @param args_count Number of arguments
+ * @return First element of the list (car) or nth element of the list (nth)
+ */
+struct Value* prim_get_element(BuildinType type, struct Value** args, int args_count);
+
+/**
+ * Lisp cdr primitive function (cdr)
+ * @param type Type of primitive function
+ * @param args Array of argument values
+ * @param args_count Number of arguments
+ * @return Tail of the list - all elements except the first one
+ */
+struct Value* prim_cdr(BuildinType type, struct Value** args, int args_count);
+
+/**
+ * Lisp length primitive function (length)
+ * @param type Type of primitive function
+ * @param args Array of argument values
+ * @param args_count Number of arguments
+ * @return Value of the list
+ */
+struct Value* prim_length(BuildinType type, struct Value** args, int args_count);
 
 
 
