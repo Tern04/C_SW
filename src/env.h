@@ -4,12 +4,13 @@
 
 #ifndef C_SW_ENV_H
 #define C_SW_ENV_H
-#include "value.h"
+
+struct Value;
 
 /* Structure for the environment that holds created variables from the lisp code */
-typedef struct {
+typedef struct Env{
     char** names; /* Array of variable names */
-    Value** values; /* Array of variable values */
+    struct Value** values; /* Array of variable values */
     int count; /* Total number of variables */
 }Env;
 
@@ -25,7 +26,7 @@ Env* create_env(void);
  * @param name Name of the variable
  * @param value Value to be set
  */
-void env_set_variable(Env* env, const char* name, Value* value);
+void env_set_variable(Env* env, const char* name, struct Value* value);
 
 /**
  *
@@ -33,7 +34,7 @@ void env_set_variable(Env* env, const char* name, Value* value);
  * @param name Name of the varible
  * @return Pointer to the found value or NULL
  */
-Value* env_get_value(const Env* env, const char* name);
+struct Value* env_get_value(const Env* env, const char* name);
 
 /**
  * Cleans up allocated memory of the environment structure

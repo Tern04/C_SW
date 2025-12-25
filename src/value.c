@@ -3,11 +3,12 @@
 */
 
 #include <stdlib.h>
-#include "value.h"
-
 #include <string.h>
 
 #include "parser.h"
+#include "s_exp.h"
+#include "value.h"
+
 
 /*
  * Creates a new value for an integer

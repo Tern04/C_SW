@@ -2,14 +2,14 @@
 * Created by Tomáš Rybák on 19.10.2025.
 */
 
-#include "tokenizer.h"
-
 #include <ctype.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "utils.h"
+#include "tokenizer.h"
+
 
 /*
  * Initialize the tokenizer and set him to the beginning of the input

@@ -1,9 +1,12 @@
 
-#include "parser.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
+#include "s_exp.h"
+#include "tokenizer.h"
+#include "parser.h"
+
 
 /*
  * Parse a single expression from the tokenizer
@@ -20,7 +23,7 @@ Node* parse_expression(Tokenizer* tokenizer) {
     switch (token.type) {
         case TOKEN_NUMBER:
         case TOKEN_STRING:
-            node = parse_atom(token);
+            node = parse_atom(&token);
             token_cleanup(&token);
             break;
         case TOKEN_QUOTE:
@@ -35,7 +38,7 @@ Node* parse_expression(Tokenizer* tokenizer) {
             return quote_list;
         case TOKEN_SYMBOL:
             /* Normal symbol */
-            node = parse_atom(token);
+            node = parse_atom(&token);
             token_cleanup(&token);
             break;
         case TOKEN_LBRACKET:
@@ -69,21 +72,26 @@ Node* parse_expression(Tokenizer* tokenizer) {
 /*
  * Convert a token to an atomic node
  */
-Node* parse_atom(Token token) {
+Node* parse_atom(const Token* token) {
     Node* node;
     node = NULL;
 
-    switch (token.type) {
+    /* Check for NULL token */
+    if (!token) {
+        return NULL;
+    }
+
+    switch (token->type) {
         case TOKEN_NUMBER:
-            node = create_int_node(token.number_value);
+            node = create_int_node(token->number_value);
             break;
 
         case TOKEN_STRING:
-            node = create_string_node(token.text);
+            node = create_string_node(token->text);
             break;
 
         case TOKEN_SYMBOL:
-            node = create_symbol_node(token.text);
+            node = create_symbol_node(token->text);
             break;
 
         default:

@@ -4,15 +4,17 @@
 
 #include <stddef.h>
 
-#include "eval.h"
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
+#include "s_exp.h"
+#include "value.h"
 #include "env.h"
 #include "buildins.h"
-#include "value.h"
+#include "eval.h"
+
+
+
 
 /*
  * Main evaluation function

@@ -8,7 +8,7 @@
 #include <stddef.h>
 
 /* Token types that can be recognized */
-typedef enum {
+typedef enum TokenType{
     TOKEN_SYMBOL, /* Variable or function name */
     TOKEN_NUMBER, /* Numbers */
     TOKEN_STRING, /* Text in  quotation marks*/
@@ -20,14 +20,14 @@ typedef enum {
 }TokenType;
 
 /* Structure for token representation */
-typedef struct {
+typedef struct Token{
     TokenType type; /* Type of token */
     char* text; /* Copy of token text representation */
     long number_value; /* Number if the token has it */
 }Token;
 
 /* Structure for handling tokenization */
-typedef struct {
+typedef struct Tokenizer{
     char* input; /* Whole input string */
     size_t index; /* Current position in the input string */
     Token current_token; /* Last token that was handled */

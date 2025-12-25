@@ -4,10 +4,12 @@
 
 #ifndef C_SW_S_EXP_H
 #define C_SW_S_EXP_H
-#include "value.h"
+
+/* Forward declaration of Value structure */
+struct Value;
 
 /* Types of node */
-typedef enum {
+typedef enum NodeType{
     NODE_INT, /* Integer value */
     NODE_STRING, /* String literal */
     NODE_LIST, /* List of nodes - expressions */
@@ -66,6 +68,6 @@ Node* create_node_copy(Node* node);
  * @param value value to be converted
  * @return Created node
  */
-Node* create_node_from_value(Value* value);
+Node* create_node_from_value(struct Value* value);
 
 #endif /* C_SW_S_EXP_H */

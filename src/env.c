@@ -2,14 +2,14 @@
 * Created by Tomáš Rybák on 19.10.2025.
 */
 
-#include "env.h"
 
 #include <stdio.h>
-
-#include "value.h"
-
 #include <stdlib.h>
 #include <string.h>
+
+#include "value.h"
+#include "env.h"
+
 
 /*
  * Create a new environment

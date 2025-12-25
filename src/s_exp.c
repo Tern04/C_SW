@@ -3,6 +3,7 @@
 */
 
 #include "s_exp.h"
+#include "value.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +11,7 @@
 /*
  * Create a new node with an integer value
  */
-Node* create_int_node(long value) {
+Node* create_int_node(const long value) {
     Node* node = malloc(sizeof(Node));
     if (!node) {
         return NULL;
@@ -146,9 +147,9 @@ Node* create_node_from_value(Value* value) {
         case VALUE_STRING:
             return create_string_node(value->data.string_value); /* Create string node */
         case VALUE_T:
-            return create_symbol_node("t"); /* Create T symbol node */
+            return create_symbol_node("T"); /* Create T symbol node */
         case VALUE_NIL:
-            return create_symbol_node("nil"); /* Create NIL symbol node */
+            return create_symbol_node("NIL"); /* Create NIL symbol node */
         case VALUE_LIST:
             /* Create a node from value data if it has them */
             if (value->data.list_node) {

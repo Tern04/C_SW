@@ -4,10 +4,11 @@
 
 #ifndef C_SW_VALUE_H
 #define C_SW_VALUE_H
-#include "s_exp.h"
+
+struct Node;
 
 /* Types of values */
-typedef enum {
+typedef enum ValueType{
     VALUE_INT, /* Integer value */
     VALUE_STRING, /* String value */
     VALUE_LIST, /* Arrays */
@@ -16,12 +17,12 @@ typedef enum {
 }ValueType;
 
 /* Structure for value representation */
-typedef struct {
+typedef struct Value{
     ValueType type; /* Type of value */
     union { /* Depends on the type */
         long int_value; /* Integer value */
         char* string_value; /* String value */
-        Node* list_node;
+        struct Node* list_node;
     }data;
 }Value;
 
@@ -44,7 +45,7 @@ Value* create_string_value(const char* string_value);
  * @param node Node representing the list
  * @return Created value
  */
-Value* create_list_value(Node* node);
+Value* create_list_value(struct Node* node);
 
 /**
  * Creates a T value - True
@@ -70,7 +71,7 @@ Value* create_value_copy(const Value* value);
  * @param node Node to be converted to Value
  * @return Value created from the node
  */
-Value* create_value_from_node(Node* node);
+Value* create_value_from_node(struct Node* node);
 
 /**
  * Frees allocated memory inside a Value structure
