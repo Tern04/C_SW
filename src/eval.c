@@ -87,7 +87,7 @@ Value* eval_list(Env* env, const Node* node) {
         case BI_QUIT:
             handle_quit();
         case BI_IF:
-            return create_nil_value();
+            return handle_if(env, node);
         case BI_WHILE:
             return create_nil_value();
         case BI_BRK:
@@ -309,6 +309,35 @@ Value* handle_inc_dec(Env* env, const Node* node, const int flag) {
 
     /* Return a copy of the updated value */
     return return_value;
+}
+
+/*
+ * Handles the IF - conditional evaluation
+ */
+Value* handle_if(Env* env, const Node* node) {
+    Value* condition;
+    int is_true;
+
+    /* Check for three or 4 arguments */
+    if (node->value.list.count < 3 || node->value.list.count > 4) {
+        printf("Error: IF requires at least two arguments\n");
+        return create_nil_value();
+    }
+
+    condition = eval(env, node->value.list.children[1]);
+    is_true = condition->type != VALUE_NIL; /* Condition is true if not NIL */
+
+    /* Free the condition value */
+    value_cleanup(condition);
+    free(condition);
+
+    if (is_true) {
+        return eval(env, node->value.list.children[2]);
+    }else if (node->value.list.count == 4) {
+        return eval(env, node->value.list.children[3]);
+    }
+
+    return create_nil_value();
 }
 
 /*

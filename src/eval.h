@@ -61,6 +61,14 @@ struct Value* handle_set(struct Env* env, const struct Node* node);
 struct Value* handle_inc_dec(struct Env* env, const struct Node* node, int flag);
 
 /**
+ * Handles the IF - conditional evaluation
+ * @param env Environment with variables
+ * @param node Node to handle
+ * @return Value of the IF operation
+ */
+struct Value* handle_if(struct Env* env, const struct Node* node);
+
+/**
  * Exits the program
  */
 void handle_quit(void);
