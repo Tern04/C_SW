@@ -21,6 +21,12 @@ typedef struct Env{
 Env* create_env(void);
 
 /**
+ * Setup of global variables - T and NIL
+ * @param env Environment structure to be set up
+ */
+void setup_env(Env* env);
+
+/**
  * Sets or rewrite variable in the environment
  * @param env Pointer to an environment structure
  * @param name Name of the variable

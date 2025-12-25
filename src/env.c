@@ -27,6 +27,22 @@ Env* create_env(void) {
     return env;
 }
 
+/*
+ * Setup of global variables - T and NIL
+ */
+void setup_env(Env* env) {
+    Value* t;
+    Value* nil;
+
+    t = create_t_value(); /* Create T value */
+    env_set_variable(env, "T", t); /* Set T variable in the environment */
+    value_cleanup(t); /* Free the T value structure */
+
+    nil = create_nil_value(); /* Create NIL value */
+    env_set_variable(env, "NIL", nil); /* Set NIL variable in the environment */
+    value_cleanup(nil); /* Free the NIL value structure */
+}
+
 void env_set_variable(Env* env, const char* name, Value* value) {
     int i;
     char** temp_names;

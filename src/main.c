@@ -79,6 +79,7 @@ void run_batch_mode(char* file_content) {
     /* 1. Initialize the environment */
     env = create_env();
     if (!env) return;
+    setup_env(env);
 
     printf("--- LISP INTERPRETER BATCH MODE ---\n");
 
