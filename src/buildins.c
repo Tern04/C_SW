@@ -29,16 +29,16 @@ const BuildinMapping BUILTIN_TABLE[] = {
     {"-",      BI_SUB, prim_arithmetics},
     {"*",      BI_MUL, prim_arithmetics},
     {"/",      BI_DIV, prim_arithmetics},
-    {"MAX",    BI_MAX, NULL},
-    {"MIN",    BI_MIN, NULL},
+    {"MAX",    BI_MAX, prim_arithmetics},
+    {"MIN",    BI_MIN, prim_arithmetics},
     {"=",      BI_EQ, prim_compare},
     {"/=",     BI_NEQ, prim_compare},
     {"<",      BI_LT, prim_compare},
     {">",      BI_GT, prim_compare},
     {"<=",     BI_LTE, prim_compare},
     {">=",     BI_GTE, prim_compare},
-    {"LIST",   BI_LIST, NULL},
-    {"ATOM",   BI_ATOM, NULL},
+    {"LIST",   BI_LIST, prim_list},
+    {"ATOM",   BI_ATOM, prim_atom},
     {"CAR",    BI_CAR, NULL},
     {"CDR",    BI_CDR, NULL},
     {"NTH",    BI_NTH, NULL},
@@ -282,10 +282,6 @@ Value* prim_list(BuildinType type, Value** args, int args_count) {
     }
 
     result = create_list_value(list); /* Create a value from the list node */
-
-    /* Free the list node */
-    node_cleanup(list);
-    free(list);
 
     return result;
 }
