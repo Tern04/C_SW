@@ -306,12 +306,28 @@ Value* prim_atom(const BuildinType type, Value** args, const int args_count) {
 }
 
 /*
- * Lisp get element primitive functions (car, nth)
- * car - returns the first element of the list
- * nth - returns the nth element of the list
+ * Lisp car primitive function (car)
+ * returns the first element of the list
  */
-Value* prim_get_element(BuildinType type, Value** args, int args_count) {
-    return NULL;
+Value* prim_car(const BuildinType type, Value** args, const int args_count) {
+    Node* list;
+
+    (void) type; /* Type of function will not be used in this method */
+
+    /* Check for exactly one argument which must be a list */
+    if (args_count != 1 || args[0]->type != VALUE_LIST) {
+        printf("Error: CAR expects exactly 1 argument - list\n");
+        return create_nil_value();
+    }
+
+    list = args[0]->data.list_node; /* Get the list node */
+
+    /* Check for the empty list */
+    if (list->value.list.count == 0) {
+        return create_nil_value();
+    }
+
+    return create_value_from_node(list->value.list.children[0]); /* Return first element as value */
 }
 
 /*
@@ -322,9 +338,50 @@ Value* prim_cdr(BuildinType type, Value** args, int args_count) {
 }
 
 /*
+ * Lisp nth primitive function (nth)
+ * returns the n-th element of the list
+ */
+Value* prim_nth(const BuildinType type, Value** args, const int args_count) {
+    Node* list;
+    int index;
+
+    (void) type; /* Type of function will not be used in this method */
+
+    /* Check for exactly two arguments: integer and list */
+    if (args_count != 2 || args[0]->type != VALUE_INT || args[1]->type != VALUE_LIST) {
+        printf("Error: NTH expects exactly 2 arguments - integer and list\n");
+        return create_nil_value();
+    }
+
+    list = args[1]->data.list_node; /* Get the list node */
+    index = (int)args[0]->data.int_value; /* Get the index - convert long to int */
+
+    /* Check for the valid index */
+    if (index < 0 || index >= list->value.list.count) {
+        printf("Error: NTH index out of bounds\n");
+        return create_nil_value();
+    }
+
+    return create_value_from_node(list->value.list.children[index]); /* Return n-th element as a value */
+}
+
+/*
  * Lisp length primitive function (length)
  */
-Value* prim_length(BuildinType type, Value** args, int args_count) {
-    return NULL;
+Value* prim_length(const BuildinType type, Value** args, const int args_count) {
+    (void) type; /* Type of function will not be used in this method */
+
+    /* Check for exactly one argument which must be a list */
+    if (args_count != 1 || args[0]->type != VALUE_LIST) {
+        printf("Error: LENGTH expects exactly 1 argument - list\n");
+        return create_nil_value();
+    }
+
+    /* Check for NIL which represents an empty list */
+    if (args[0]->type == VALUE_NIL) {
+        return create_int_value(0); /* Return length 0 for NIL */
+    }
+
+    return create_int_value(args[0]->data.list_node->value.list.count); /* Return the length of the list */
 }
 

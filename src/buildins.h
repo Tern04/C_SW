@@ -134,15 +134,15 @@ struct Value* prim_list(BuildinType type, struct Value** args, int args_count);
 struct Value* prim_atom(BuildinType type, struct Value** args, int args_count);
 
 /**
- * Lisp get element primitive functions (car, nth)
- * car - returns the first element of the list
- * nth - returns the nth element of the list
+ * Lisp car primitive function (car)
+ * returns the first element of the list
  * @param type Type of primitive function
  * @param args Array of argument values
  * @param args_count Number of arguments
- * @return First element of the list (car) or nth element of the list (nth)
+ * @return Value of the first element of the list
  */
-struct Value* prim_get_element(BuildinType type, struct Value** args, int args_count);
+struct Value* prim_car(BuildinType type, struct Value** args, int args_count);
+
 
 /**
  * Lisp cdr primitive function (cdr)
@@ -152,6 +152,16 @@ struct Value* prim_get_element(BuildinType type, struct Value** args, int args_c
  * @return Tail of the list - all elements except the first one
  */
 struct Value* prim_cdr(BuildinType type, struct Value** args, int args_count);
+
+/**
+ * Lisp nth primitive function (nth)
+ * returns the n-th element of the list
+ * @param type Type of primitive function
+ * @param args Array of argument values
+ * @param args_count Number of arguments
+ * @return Value of the n-th element of the list
+ */
+struct Value* prim_nth(BuildinType type, struct Value** args, int args_count);
 
 /**
  * Lisp length primitive function (length)
