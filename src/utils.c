@@ -142,6 +142,9 @@ void print_value(const Value* value) {
     else if (value->type == VALUE_LIST) {
         print_node(value->data.list_node);
     }
+    else if (value->type == VALUE_SYMBOL) {
+        printf("%s", value->data.string_value);
+    }
     else {
         printf("\"%s\"", value->data.string_value);
     }

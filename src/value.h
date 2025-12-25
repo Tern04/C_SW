@@ -11,6 +11,7 @@ struct Node;
 typedef enum ValueType{
     VALUE_INT, /* Integer value */
     VALUE_STRING, /* String value */
+    VALUE_SYMBOL, /* Symbol value */
     VALUE_LIST, /* Arrays */
     VALUE_T, /* True value */
     VALUE_NIL /* Nil value */
@@ -39,6 +40,13 @@ Value* create_int_value(long int_value);
  * @return Created value
  */
 Value* create_string_value(const char* string_value);
+
+/**
+ * Creates a new value for a symbol
+ * @param symbol_value Symbol value to be set
+ * @return Created value
+ */
+Value* create_symbol_value(const char* symbol_value);
 
 /**
  * Creates a new value for a list

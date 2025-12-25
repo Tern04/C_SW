@@ -314,9 +314,14 @@ Value* prim_car(const BuildinType type, Value** args, const int args_count) {
 
     (void) type; /* Type of function will not be used in this method */
 
-    /* Check for exactly one argument which must be a list */
-    if (args_count != 1 || args[0]->type != VALUE_LIST) {
+    /* Check for exactly one argument which must be a list or NIL */
+    if (args_count != 1 || (args[0]->type != VALUE_LIST && args[0]->type != VALUE_NIL)) {
         printf("Error: CAR expects exactly 1 argument - list\n");
+        return create_nil_value();
+    }
+
+    /* Check for NIL which represents an empty list */
+    if (args[0]->type == VALUE_NIL) {
         return create_nil_value();
     }
 
@@ -342,8 +347,13 @@ Value* prim_cdr(const BuildinType type, Value** args, int args_count) {
     (void) type; /* Type of function will not be used in this method */
 
     /* Check for exactly one argument which must be a list */
-    if (args_count != 1 || args[0]->type != VALUE_LIST) {
+    if (args_count != 1 || (args[0]->type != VALUE_LIST && args[0]->type != VALUE_NIL)) {
         printf("Error: CDR expects exactly 1 argument - list\n");
+        return create_nil_value();
+    }
+
+    /* Check for NIL which represents an empty list */
+    if (args[0]->type == VALUE_NIL) {
         return create_nil_value();
     }
 
@@ -388,10 +398,16 @@ Value* prim_nth(const BuildinType type, Value** args, const int args_count) {
 
     (void) type; /* Type of function will not be used in this method */
 
-    /* Check for exactly two arguments: integer and list */
-    if (args_count != 2 || args[0]->type != VALUE_INT || args[1]->type != VALUE_LIST) {
+    /* Check for exactly two arguments: integer and list OR NIL */
+    if (args_count != 2 || args[0]->type != VALUE_INT ||
+        (args[1]->type != VALUE_LIST && args[1]->type != VALUE_NIL)) {
         printf("Error: NTH expects exactly 2 arguments - integer and list\n");
         return create_nil_value();
+       }
+
+    /* Check for NIL which represents an empty list */
+    if (args[1]->type == VALUE_NIL) {
+        return create_nil_value(); /* Any index is NIL */
     }
 
     list = args[1]->data.list_node; /* Get the list node */
@@ -412,8 +428,8 @@ Value* prim_nth(const BuildinType type, Value** args, const int args_count) {
 Value* prim_length(const BuildinType type, Value** args, const int args_count) {
     (void) type; /* Type of function will not be used in this method */
 
-    /* Check for exactly one argument which must be a list */
-    if (args_count != 1 || args[0]->type != VALUE_LIST) {
+    /* Check for exactly one argument which must be a list or NIL */
+    if (args_count != 1 || (args[0]->type != VALUE_LIST && args[0]->type != VALUE_NIL)) {
         printf("Error: LENGTH expects exactly 1 argument - list\n");
         return create_nil_value();
     }

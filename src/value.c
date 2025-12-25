@@ -61,6 +61,37 @@ Value* create_string_value(const char* string_value) {
 }
 
 /*
+ * Creates a new value for a symbol
+ */
+Value* create_symbol_value(const char* symbol_value) {
+    Value* value;
+    char* text;
+    size_t len;
+
+    value = malloc(sizeof(Value)); /* Allocate memory for the value structure */
+
+    /* Check for allocation failure */
+    if (!value) {
+        return NULL;
+    }
+
+    len = strlen(symbol_value) + 1; /* +1 for null terminator */
+    text = malloc(len); /* Allocate memory for the string */
+
+    /* Check for allocation failure */
+    if (!text) {
+        free(value); /* Free the value structure */
+        return NULL;
+    }
+    strcpy(text, symbol_value); /* Copy the symbol name */
+
+    value->type = VALUE_SYMBOL; /* Set the type to VALUE_SYMBOL */
+    value->data.string_value = text; /* Set the string name */
+
+    return value;
+}
+
+/*
  * Creates a new value for a list
  */
 Value* create_list_value(Node* node) {
@@ -134,6 +165,9 @@ Value* create_value_copy(const Value* value) {
         case VALUE_STRING:
             copy = create_string_value(value->data.string_value); /* Create string value */
             break;
+        case VALUE_SYMBOL:
+            copy = create_symbol_value(value->data.string_value);
+            break;
         case VALUE_LIST:
             copy = create_list_value(value->data.list_node); /* Create list value */
             break;
@@ -164,6 +198,8 @@ Value* create_value_from_node(Node* node) {
             return create_int_value(node->value.int_value); /* Create int value */
         case NODE_STRING:
             return create_string_value(node->value.text_value); /* Create string value */
+        case NODE_SYMBOL:
+            return create_symbol_value(node->value.text_value);
         case NODE_LIST:
             return create_list_value(node); /* Create list value */
         default:
@@ -188,6 +224,7 @@ void value_cleanup(Value* value) {
         case VALUE_NIL:
             return; /* No allocated memory to free */
         case VALUE_STRING:
+        case VALUE_SYMBOL:
             /* Free the string value */
             free(value->data.string_value);
             value->data.string_value = NULL;
