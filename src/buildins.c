@@ -39,10 +39,10 @@ const BuildinMapping BUILTIN_TABLE[] = {
     {">=",     BI_GTE, prim_compare},
     {"LIST",   BI_LIST, prim_list},
     {"ATOM",   BI_ATOM, prim_atom},
-    {"CAR",    BI_CAR, NULL},
-    {"CDR",    BI_CDR, NULL},
-    {"NTH",    BI_NTH, NULL},
-    {"LENGTH", BI_LENGTH, NULL},
+    {"CAR",    BI_CAR, prim_car},
+    {"CDR",    BI_CDR, prim_cdr},
+    {"NTH",    BI_NTH, prim_nth},
+    {"LENGTH", BI_LENGTH, prim_length},
     {"PRINT",  BI_PRINT, prim_print}
 };
 
@@ -333,8 +333,49 @@ Value* prim_car(const BuildinType type, Value** args, const int args_count) {
 /*
  * Lisp cdr primitive function (cdr)
  */
-Value* prim_cdr(BuildinType type, Value** args, int args_count) {
-    return NULL;
+Value* prim_cdr(const BuildinType type, Value** args, int args_count) {
+    Node* list;
+    Node* new_list;
+    int count;
+    int i;
+
+    (void) type; /* Type of function will not be used in this method */
+
+    /* Check for exactly one argument which must be a list */
+    if (args_count != 1 || args[0]->type != VALUE_LIST) {
+        printf("Error: CDR expects exactly 1 argument - list\n");
+        return create_nil_value();
+    }
+
+    /* Get the list node and original count */
+    list = args[0]->data.list_node;
+    count = list->value.list.count;
+
+    /* If a list has less or one element - return NIL */
+    if (count <= 1) {
+        return create_nil_value();
+    }
+
+    new_list = create_list_node(); /* Create a new list node */
+    new_list->value.list.count = count - 1; /* Set the count of the new list */
+    new_list->value.list.children = malloc(sizeof(Node*) * (count - 1)); /* Allocate memory for new Node */
+
+    /* Check for allocation failure */
+    if (!new_list->value.list.children) {
+        printf("Error: Memory allocation failed at cdr\n");
+
+        /* Free the created list */
+        free(new_list);
+
+        return create_nil_value();
+    }
+
+    /* Copy all elements except the first one as a deep copy */
+    for (i = 1; i < count; i++) {
+        new_list->value.list.children[i - 1] = create_node_copy(list->value.list.children[i]);
+    }
+
+    return create_list_value(new_list);
 }
 
 /*
