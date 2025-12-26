@@ -79,13 +79,6 @@ void print_token(Token token) {
 }
 
 /*
- * Frees the rest of the allocated memory
- */
-void program_cleanup(char* file_content) {
-    free(file_content);
-}
-
-/*
  * Print the AST node for debugging
  */
 void print_node(Node* node) {
