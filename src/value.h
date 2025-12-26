@@ -13,6 +13,7 @@ typedef enum ValueType{
     VALUE_STRING, /* String value */
     VALUE_SYMBOL, /* Symbol value */
     VALUE_LIST, /* Arrays */
+    VALUE_BREAK, /* Break value for while loops */
     VALUE_T, /* True value */
     VALUE_NIL /* Nil value */
 }ValueType;
@@ -30,30 +31,36 @@ typedef struct Value{
 /**
  * Creates a new value for an integer
  * @param int_value Integer value to be set
- * @return Created value
+ * @return Created integer value
  */
 Value* create_int_value(long int_value);
 
 /**
  * Creates a new value for a string
  * @param string_value String value to be set
- * @return Created value
+ * @return Created string value
  */
 Value* create_string_value(const char* string_value);
 
 /**
  * Creates a new value for a symbol
  * @param symbol_value Symbol value to be set
- * @return Created value
+ * @return Created symbol value
  */
 Value* create_symbol_value(const char* symbol_value);
 
 /**
  * Creates a new value for a list
  * @param node Node representing the list
- * @return Created value
+ * @return Created list value
  */
 Value* create_list_value(struct Node* node);
+
+/**
+ * Creates a break value - used in while loops
+ * @return Break value
+ */
+Value* create_break_value(void);
 
 /**
  * Creates a T value - True

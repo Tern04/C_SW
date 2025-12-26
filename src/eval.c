@@ -92,7 +92,7 @@ Value* eval_list(Env* env, const Node* node) {
             return create_nil_value();
         case BI_BRK:
             /* Handling functions will be implemented - now just return NIL */
-            return create_nil_value();
+            return handle_brk();
 
         /* Section 2 - standard primitive functions will be handled in buildins.c */
         case BI_ADD:
@@ -172,8 +172,9 @@ Value* handle_quote(const Node* node) {
         case NODE_INT:
             return create_int_value(argument->value.int_value);
         case NODE_STRING:
-        case NODE_SYMBOL:
             return create_string_value(argument->value.text_value);
+        case NODE_SYMBOL:
+            return create_symbol_value(argument->value.text_value);
         case NODE_LIST:
             return create_list_value(argument); /* Return the quoted expression as a list value */
         default:
@@ -200,8 +201,8 @@ Value* handle_set(Env* env, const Node* node) {
     name_value = eval(env, node->value.list.children[1]); /* Evaluate the name of the variable */
 
     /* Check if the name is found and if it is a string */
-    if (!name_value || name_value->type != VALUE_STRING) {
-        printf("Error: set requires a string as a variable name\n");
+    if (!name_value || (name_value->type != VALUE_STRING && name_value->type != VALUE_SYMBOL)) {
+        printf("Error: set requires a symbol or a string as a variable name\n");
 
         /* Free the name value if it was allocated */
         if (name_value) {
@@ -248,8 +249,8 @@ Value* handle_inc_dec(Env* env, const Node* node, const int flag) {
 
     /* Check for the variable name - must be a symbol */
     name_value = eval(env, node->value.list.children[1]);
-    if (!name_value || name_value->type != VALUE_STRING) {
-        printf("Error: Variable name must be a symbol\n");
+    if (!name_value || (name_value->type != VALUE_STRING && name_value->type != VALUE_SYMBOL)) {
+        printf("Error: Variable name must be a symbol or string\n");
 
         /* Cleanup */
         if (name_value) {
@@ -338,6 +339,13 @@ Value* handle_if(Env* env, const Node* node) {
     }
 
     return create_nil_value();
+}
+
+/*
+ * Handles the BRK - break from the while loop
+ */
+Value* handle_brk(void) {
+    return create_break_value();
 }
 
 /*

@@ -136,6 +136,9 @@ void print_value(const Value* value) {
     else if (value->type == VALUE_T) {
         printf("T");
     }
+    else if (value->type == VALUE_BREAK) {
+        printf("BREAK");
+    }
     else if (value->type == VALUE_INT) {
         printf("%ld", value->data.int_value);
     }

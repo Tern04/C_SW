@@ -69,6 +69,12 @@ struct Value* handle_inc_dec(struct Env* env, const struct Node* node, int flag)
 struct Value* handle_if(struct Env* env, const struct Node* node);
 
 /**
+ * Handles the BRK - break from the while loop
+ * @return Break value
+ */
+struct Value* handle_brk(void);
+
+/**
  * Exits the program
  */
 void handle_quit(void);

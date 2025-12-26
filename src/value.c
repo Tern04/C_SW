@@ -116,6 +116,22 @@ Value* create_list_value(Node* node) {
     return value;
 }
 
+/*
+ */
+Value* create_break_value(void) {
+    Value* value;
+
+    value = malloc(sizeof(Value)); /* Allocate memory for the value structure */
+
+    /* Check for allocation failure */
+    if (!value) {
+        return NULL;
+    }
+    value->type = VALUE_BREAK; /* Set the type to VALUE_BREAK */
+
+    return value;
+}
+
 /**
  * Creates a T value - True
  */
@@ -171,6 +187,8 @@ Value* create_value_copy(const Value* value) {
         case VALUE_LIST:
             copy = create_list_value(value->data.list_node); /* Create list value */
             break;
+        case VALUE_BREAK:
+            copy = create_break_value();
         case VALUE_T:
             copy = create_t_value(); /* Create T value */
             break;
@@ -181,8 +199,8 @@ Value* create_value_copy(const Value* value) {
             return NULL; /* Unknown type */
     }
     return copy;
-
 }
+
 /*
  * Creates a Value from a Node
  */
@@ -220,6 +238,7 @@ void value_cleanup(Value* value) {
     /* Free based on the type */
     switch (value->type) {
         case VALUE_INT:
+        case VALUE_BREAK:
         case VALUE_T:
         case VALUE_NIL:
             return; /* No allocated memory to free */
