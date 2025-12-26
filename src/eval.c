@@ -191,10 +191,10 @@ Value* handle_set(Env* env, const Node* node) {
     Value* value;
     char* name;
 
-    /* Check for at least two arguments - name and value */
-    if (node->value.list.count < 3) {
-        printf("Error: set requires at least two arguments - name and value\n");
-        return create_nil_value(); /* Return NIL on error */
+    /* Check for two arguments - name and value */
+    if (node->value.list.count != 3) {
+        printf("Error: SET expects exactly 2 arguments (name and value)\n");
+        return create_nil_value();
     }
 
     name_value = eval(env, node->value.list.children[1]); /* Evaluate the name of the variable */
