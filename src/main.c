@@ -27,7 +27,7 @@ void run_interactive_mode(void) {
     Env* env;
     Value* result;
 
-    /* Initialize env */
+    /* Initialize and set up env */
     env = create_env();
     if (!env) return;
     setup_env(env);
@@ -56,114 +56,85 @@ void run_interactive_mode(void) {
         tokenizer_init(&tokenizer, input_line);
         ast = parse_expression(&tokenizer);
 
+        /* Check for parsing errors */
         if (!ast) {
             printf("Error: Invalid expression or unknown characters\n");
-            tokenizer_cleanup(&tokenizer);
+            tokenizer_cleanup(&tokenizer); /* Cleanup tokenizer */
             continue;
         }
 
-        result = eval(env, ast);
+        result = eval(env, ast); /* Evaluate the AST */
 
+        /* Print the result */
         if (result) {
             print_value(result);
             printf("\n");
+
+            /* Free the result value */
             value_cleanup(result);
             free(result);
         }
 
+        /* Free the AST */
         node_cleanup(ast);
         tokenizer_cleanup(&tokenizer);
 
     }
-    env_cleanup(env);
+    env_cleanup(env); /* Cleanup environment */
+    printf("--- EXITING INTERACTIVE MODE ---\n");
 }
 
-void run_batch_mode(char* file_content) {
+void run_batch_modes(char* file_content, ProgramMode mode) {
     Tokenizer tokenizer;
     Node* ast;
     Env* env;
-    Value* result;
+    Value* value;
 
-    /* 1. Initialize the environment */
     env = create_env();
-    if (!env) return;
+    if (!env) {
+        return;
+    }
     setup_env(env);
 
-    printf("--- LISP INTERPRETER BATCH MODE ---\n");
-
-    /* 2. Initialize the tokenizer  */
-    tokenizer_init(&tokenizer, file_content);
-
-    /* 3. Parsing -> Evaluation -> Print -> Cleanup */
-    while (1) {
-        ast = parse_expression(&tokenizer);
-
-        /* Nothing to parse -> break */
-        if (!ast) break;
-
-        /* Evaluate  */
-        result = eval(env, ast);
-
-        /* Print the result  */
-        if (result) {
-            printf("Result: ");
-            print_value(result);
-            printf("\n");
-
-            /* Free the values  */
-            value_cleanup(result);
-            free(result);
-        }
-
-        /* Free the AST tree */
-        node_cleanup(ast);
+    if (mode == MODE_BATCH) {
+        printf("--- LISP INTERPRETER BATCH MODE ---\n");
+    } else {
+        printf("--- LISP INTERPRETER VERBOSE BATCH MODE ---\n");
     }
 
-    /* 4. Free tokenizer and environment */
+
+    tokenizer_init(&tokenizer, file_content);
+
+    while (1) {
+        /* Parsing */
+        ast = parse_expression(&tokenizer);
+
+        /* Nothing to parse - break */
+        if (!ast) {
+            break;
+        }
+
+        value = eval(env, ast); /* Evaluate the AST */
+
+        /* If there is a value - print it in verbose mode and free it in both modes*/
+        if (value) {
+            if (mode == MODE_VERBOSE_BATCH) {
+                print_value(value);
+                printf("\n");
+            }
+
+            value_cleanup(value);
+            free(value);
+        }
+        node_cleanup(ast);
+    }
+    /* Free tokenizer and environment */
     tokenizer_cleanup(&tokenizer);
     env_cleanup(env);
     printf("--- FINISHED ---\n");
 }
 
-void run_verbose_batch_mode(char* file_content) {
-    Tokenizer tokenizer;
-    Token token;
-    Node* ast;
-
-    printf("Verbose batch mode - processing file with output...\n");
-    printf("File content: %s\n\n", file_content);
-
-    /* First tokenize and print all tokens */
-    tokenizer_init(&tokenizer, file_content);
-    printf("Tokens:\n");
-    do {
-        token = tokenizer_get_token(&tokenizer);
-        print_token(token);
-        token_cleanup(&token);
-    } while (token.type != TOKEN_END && token.type != TOKEN_ERROR);
-    tokenizer_cleanup(&tokenizer);
-
-    /* Then parse and print AST for each expression */
-    tokenizer_init(&tokenizer, file_content);
-    printf("\nParsed expressions:\n");
-
-    while (1) {
-        ast = parse_expression(&tokenizer);
-        if (!ast) {
-            break;
-        }
-
-        printf("Expression: ");
-        print_node(ast);
-        printf("\n");
-
-        node_cleanup(ast);
-    }
-
-    tokenizer_cleanup(&tokenizer);
-}
-
-ProgramMode setup(int argc, char* argv[], const char** input_file) {
+ProgramMode setup(const int argc, char* argv[], const char** input_file) {
     struct stat buffer;
     *input_file = NULL;
 
@@ -188,7 +159,7 @@ ProgramMode setup(int argc, char* argv[], const char** input_file) {
     return MODE_ERROR;
 }
 
-int main(int argc, char* argv[]) {
+int main(const int argc, char* argv[]) {
     const char* input_file = NULL;
     char* file_content = NULL;
     ProgramMode mode;
@@ -201,21 +172,11 @@ int main(int argc, char* argv[]) {
             break;
 
         case MODE_BATCH:
-            file_content = load_content_from_file(input_file);
-            if (file_content) {
-                run_batch_mode(file_content);
-                program_cleanup(file_content);
-            } else {
-                fprintf(stderr, "Error: Could not load file %s\n", input_file);
-                return 1;
-            }
-            break;
-
         case MODE_VERBOSE_BATCH:
             file_content = load_content_from_file(input_file);
             if (file_content) {
-                run_verbose_batch_mode(file_content);
-                program_cleanup(file_content);
+                run_batch_modes(file_content, mode);
+                free(file_content);
             } else {
                 fprintf(stderr, "Error: Could not load file %s\n", input_file);
                 return 1;
