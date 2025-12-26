@@ -29,6 +29,13 @@
 (>= 2 2) ;T
 (>= 1 2) ;NIL
 
+(set 'x 10)
+(while (> x 0)
+    (if (= x 5)
+        (brk)
+        (print x))
+    (set 'x (- x 1)))
+
 
 (quit)
 (quit)
