@@ -124,14 +124,20 @@ Node* parse_list(Tokenizer* tokenizer) {
         if (next.type == TOKEN_END) {
             fprintf(stderr, "Syntax error: missing ')'\n");
             token_cleanup(&next);
+            node_cleanup(list);
             return NULL;
         }
         token_cleanup(&next);
 
         child = parse_expression(tokenizer);
-        if (child) {
-            add_child_to_list(list, child);
+
+        if (child == NULL) {
+            node_cleanup(list);
+            return NULL;
         }
+
+        add_child_to_list(list, child);
+
     }
 
     return list;
@@ -174,7 +180,6 @@ void node_cleanup(Node* node) {
                 free(node->value.text_value);
             }
             break;
-
         case NODE_LIST:
             if (node->value.list.children) {
                 for (i = 0; i < node->value.list.count; i++) {
@@ -183,7 +188,6 @@ void node_cleanup(Node* node) {
                 free(node->value.list.children);
             }
             break;
-
         case NODE_INT:
             break;
     }

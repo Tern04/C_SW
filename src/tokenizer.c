@@ -87,7 +87,9 @@ TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
 void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
     switch (token->type) {
         case TOKEN_ERROR:
-            exit(-1); /* Error handling */
+            token->text = strdup("UNKNOWN_CHARACTER");
+            tokenizer->index++;
+            break;
         case TOKEN_END:
             break;
         case TOKEN_LBRACKET:
@@ -150,7 +152,6 @@ Token tokenizer_get_token(Tokenizer* tokenizer) {
     tokenizer_process_token_by_type(tokenizer, &token);
 
     return token;
-
 }
 
 /*
@@ -230,28 +231,21 @@ void tokenize_symbol(Tokenizer* tokenizer, Token* token) {
     char* end;
     size_t length;
 
-    /* Check if this is the apostrophe quote macro */
-    if (tokenizer->input[tokenizer->index] == '\'') {
-        /* Replace apostrophe with "quote" symbol */
-        token->text = malloc(6); /* "QUOTE" + null terminator */
-        strcpy(token->text, "QUOTE"); /* Set token text to "QUOTE" */
-        tokenizer->index++;
-    } else {
-        /* Parse normal symbol/identifier */
-        start = &tokenizer->input[tokenizer->index];
-        end = start;
-        /* Find the end of the symbol */
-        while (*end != '\0' && !isspace(*end) && *end != '(' && *end != ')' && *end != '"') {
-            end++;
-        }
-
-        length = end - start; /* Calculate length of the symbol */
-        token->text = malloc(length + 1); /* Allocate memory for the symbol text */
-        strncpy(token->text, start, length); /* Copy the symbol text */
-        token->text[length] = '\0'; /* Null-terminate the string */
-        string_to_uppercase(token->text); /* Convert to uppercase */
-        tokenizer->index = end - tokenizer->input; /* Move index forward */
+    /* Parse normal symbol/identifier */
+    start = &tokenizer->input[tokenizer->index];
+    end = start;
+    /* Find the end of the symbol */
+    while (*end != '\0' && !isspace(*end) && *end != '(' && *end != ')' && *end != '"') {
+        end++;
     }
+
+    length = end - start; /* Calculate length of the symbol */
+    token->text = malloc(length + 1); /* Allocate memory for the symbol text */
+    strncpy(token->text, start, length); /* Copy the symbol text */
+    token->text[length] = '\0'; /* Null-terminate the string */
+    string_to_uppercase(token->text); /* Convert to uppercase */
+    tokenizer->index = end - tokenizer->input; /* Move index forward */
+
 }
 
 /*
