@@ -23,51 +23,59 @@ typedef enum {
 void run_interactive_mode(void) {
     char input_line[1024];
     Tokenizer tokenizer;
-    Token token;
     Node* ast;
+    Env* env;
+    Value* result;
 
-    printf("Interactive mode - enter expressions (Ctrl+C to exit):\n");
+    /* Initialize env */
+    env = create_env();
+    if (!env) return;
+    setup_env(env);
 
+    printf("--- LISP INTERPRETER INTERACTIVE MODE ---\n");
+
+    /* Start an interactive loop */
     while (1) {
-        printf("lisp> ");
+        printf("> ");
         fflush(stdout);
 
+        /* Read the input line */
         if (fgets(input_line, sizeof(input_line), stdin) == NULL) {
             break;
         }
 
-        /* Remove newline */
+        /* Remove trailing newline */
         input_line[strcspn(input_line, "\n")] = '\0';
 
+        /* Skip empty lines */
         if (strlen(input_line) == 0) {
             continue;
         }
 
-        /* First tokenize and print tokens */
-        tokenizer_init(&tokenizer, input_line);
-        printf("Tokens: \n");
-        do {
-            token = tokenizer_get_token(&tokenizer);
-            print_token(token);
-            token_cleanup(&token);
-        } while (token.type != TOKEN_END && token.type != TOKEN_ERROR);
-        tokenizer_cleanup(&tokenizer);
-
-        /* Then parse and print AST */
+        /* Parsing */
         tokenizer_init(&tokenizer, input_line);
         ast = parse_expression(&tokenizer);
 
-        if (ast) {
-            printf("AST: ");
-            print_node(ast);
-            printf("\n\n");
-            node_cleanup(ast);
-        } else {
-            printf("Parse error\n\n");
+        if (!ast) {
+            printf("Error: Invalid expression or unknown characters\n");
+            tokenizer_cleanup(&tokenizer);
+            continue;
         }
 
+        result = eval(env, ast);
+
+        if (result) {
+            print_value(result);
+            printf("\n");
+            value_cleanup(result);
+            free(result);
+        }
+
+        node_cleanup(ast);
         tokenizer_cleanup(&tokenizer);
+
     }
+    env_cleanup(env);
 }
 
 void run_batch_mode(char* file_content) {
