@@ -89,9 +89,8 @@ Value* eval_list(Env* env, const Node* node) {
         case BI_IF:
             return handle_if(env, node);
         case BI_WHILE:
-            return create_nil_value();
+            return handle_while(env, node);
         case BI_BRK:
-            /* Handling functions will be implemented - now just return NIL */
             return handle_brk();
 
         /* Section 2 - standard primitive functions will be handled in buildins.c */
@@ -339,6 +338,51 @@ Value* handle_if(Env* env, const Node* node) {
     }
 
     return create_nil_value();
+}
+
+/*
+ * Handles the WHILE - conditional evaluation
+ */
+Value* handle_while(Env* env, const Node* node) {
+    Value* condition;
+    Value* result;
+    int is_true;
+    int i;
+
+    /* Check for at least three arguments */
+    if (node->value.list.count < 3) {
+        printf("Error: WHILE requires condition and body\n");
+        return create_nil_value();
+    }
+
+    result = create_nil_value(); /* Initialize result as NIL */
+
+    while (1) {
+        condition = eval(env, node->value.list.children[1]); /* Evaluate the condition */
+        is_true = condition->type != VALUE_NIL; /* Condition is true if not NIL */
+
+        /* Free the condition value */
+        value_cleanup(condition);
+        free(condition);
+
+        if (!is_true) {
+            break; /* Exit the loop if the condition is false */
+        }
+
+        for (i = 2; i < node->value.list.count; i++) {
+            value_cleanup(result); /* Free previous result */
+            free(result);
+            result = eval(env, node->value.list.children[i]); /* Evaluate each body expression */
+
+            /* Exit the loop if break value */
+            if (result->type == VALUE_BREAK) {
+                value_cleanup(result);
+                free(result);
+                return create_nil_value();
+            }
+        }
+    }
+    return result;
 }
 
 /*

@@ -69,6 +69,14 @@ struct Value* handle_inc_dec(struct Env* env, const struct Node* node, int flag)
 struct Value* handle_if(struct Env* env, const struct Node* node);
 
 /**
+ * Handles the WHILE - conditional evaluation
+ * @param env Environment with variables
+ * @param node Node to handle
+ * @return Value of the WHILE operation
+ */
+struct Value* handle_while(struct Env* env, const struct Node* node);
+
+/**
  * Handles the BRK - break from the while loop
  * @return Break value
  */
