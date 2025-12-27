@@ -1,11 +1,8 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
 
 #ifndef C_SW_BUILDINS_H
 #define C_SW_BUILDINS_H
 
-struct Value;
+struct Value; /* Forward declaration of Value structure */
 
 /* Enum for types of build in functions */
 typedef enum BuildinType{

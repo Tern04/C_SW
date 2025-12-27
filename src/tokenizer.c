@@ -1,6 +1,3 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
 
 #include <ctype.h>
 #include <stddef.h>
@@ -8,8 +5,8 @@
 #include <string.h>
 
 #include "utils.h"
+#include "errors.h"
 #include "tokenizer.h"
-
 
 /*
  * Initialize the tokenizer and set him to the beginning of the input
@@ -45,7 +42,7 @@ Token tokenizer_peek(Tokenizer* tokenizer) {
 /*
  * Recognize the type of the current token
  */
-TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
+TokenType tokenizer_process_token_type(const Tokenizer* tokenizer) {
     char c;
     char next;
 
@@ -57,6 +54,7 @@ TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
         return TOKEN_END;
     }
 
+    /* Determine the token type based on the current character */
     switch (c) {
         case '(':
             return TOKEN_LBRACKET;
@@ -85,10 +83,25 @@ TokenType tokenizer_process_token_type(Tokenizer* tokenizer) {
  * Process the current token by its type - handle its content
  */
 void tokenizer_process_token_by_type(Tokenizer* tokenizer, Token* token) {
+    const char* err_msg;
+    size_t len;
+
+    err_msg = "UNKNOWN_CHARACTER";
+    /* Process based on the token type */
     switch (token->type) {
         case TOKEN_ERROR:
-            token->text = strdup("UNKNOWN_CHARACTER");
-            tokenizer->index++;
+            /* Handle error token */
+            len = strlen(err_msg) + 1; /* +1 for null terminator */
+            token->text = malloc(len); /* Allocate memory for the error token text */
+
+            /* Check for allocation failure */
+            if (!token->text) {
+                handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for error token text");
+                return;
+            }
+
+            strcpy(token->text, err_msg); /* Copy the error message */
+            tokenizer->index++; /* Move to the next character */
             break;
         case TOKEN_END:
             break;
@@ -122,6 +135,7 @@ Token tokenizer_get_token(Tokenizer* tokenizer) {
     Token token;
     char* input_ptr;
 
+    /* Initialize token */
     token.text = NULL;
     token.number_value = 0;
 
@@ -130,11 +144,12 @@ Token tokenizer_get_token(Tokenizer* tokenizer) {
         /* Skip whitespace first */
         input_ptr = &tokenizer->input[tokenizer->index];
         skip_whitespace(&input_ptr);
-        tokenizer->index = input_ptr - tokenizer->input;
+        tokenizer->index = input_ptr - tokenizer->input; /* Update index */
 
         /* Check for comments starting with `;` */
         if (tokenizer->input[tokenizer->index] == ';') {
-            /* Skip until end of line or end of file */
+
+            /* Skip until the end of the line or end of the file */
             while (tokenizer->input[tokenizer->index] != '\0' &&
                    tokenizer->input[tokenizer->index] != '\n') {
                 tokenizer->index++;
@@ -142,13 +157,14 @@ Token tokenizer_get_token(Tokenizer* tokenizer) {
             /* Continue loop to skip any whitespace after the comment */
             continue;
         }
-
         /* No more comments or whitespace, break out */
         break;
     }
 
+    /* Determine the token type */
     token.type = tokenizer_process_token_type(tokenizer);
 
+    /* Process the token based on its type */
     tokenizer_process_token_by_type(tokenizer, &token);
 
     return token;
@@ -198,7 +214,7 @@ void tokenize_string(Tokenizer* tokenizer, Token* token) {
         return;
     }
 
-    length = end - start; /* Calculate length of the string */
+    length = end - start; /* Calculate the length of the string */
     token->text = malloc(length + 1); /* Allocate memory for the string */
     strncpy(token->text, start, length); /* Copy the string content */
     token->text[length] = '\0'; /* Null-terminate the string */
@@ -239,7 +255,7 @@ void tokenize_symbol(Tokenizer* tokenizer, Token* token) {
         end++;
     }
 
-    length = end - start; /* Calculate length of the symbol */
+    length = end - start; /* Calculate the length of the symbol */
     token->text = malloc(length + 1); /* Allocate memory for the symbol text */
     strncpy(token->text, start, length); /* Copy the symbol text */
     token->text[length] = '\0'; /* Null-terminate the string */

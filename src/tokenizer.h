@@ -1,6 +1,3 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
 
 #ifndef C_SW_TOKENIZER_H
 #define C_SW_TOKENIZER_H
@@ -52,7 +49,7 @@ Token tokenizer_peek(Tokenizer* tokenizer);
  * @param tokenizer Token reader
  * @return Type of current token
  */
-TokenType tokenizer_process_token_type(Tokenizer* tokenizer);
+TokenType tokenizer_process_token_type(const Tokenizer* tokenizer);
 
 /**
  * Process the current token by its type - handle its content

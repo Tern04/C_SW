@@ -1,15 +1,12 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
-
-#include "utils.h"
 
 #include <ctype.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
+#include "s_exp.h"
 #include "tokenizer.h"
+#include "value.h"
+#include "utils.h"
 
 /*
  * Skips all whitespaces in the input
@@ -66,64 +63,32 @@ int is_print_call(const Node* ast) {
 }
 
 /*
- * Print a token's type and value for debugging
- */
-void print_token(Token token) {
-    printf("Token type: ");
-    switch(token.type) {
-        case TOKEN_SYMBOL:
-            printf("SYMBOL");
-            break;
-        case TOKEN_QUOTE:
-            printf("QUOTE");
-            break;
-        case TOKEN_NUMBER:
-            printf("NUMBER (value: %ld)", token.number_value);
-            break;
-        case TOKEN_STRING:
-            printf("STRING");
-            break;
-        case TOKEN_LBRACKET:
-            printf("LBRACKET");
-            break;
-        case TOKEN_RBRACKET:
-            printf("RBRACKET");
-            break;
-        case TOKEN_ERROR:
-            printf("ERROR");
-            break;
-        case TOKEN_END:
-            printf("END");
-            break;
-    }
-    printf(", text: \"%s\"\n", token.text ? token.text : "NULL");
-}
-
-/*
- * Print the AST node for debugging
+ * Print the AST node for printing function
  */
 void print_node(Node* node) {
     int i;
 
+    /* Check for NULL node */
     if (!node) {
-        printf("NULL");
+        printf("NIL");
         return;
     }
 
     switch (node->type) {
         case NODE_INT:
+            /* Print integer value */
             printf("%ld", node->value.int_value);
             break;
-
         case NODE_STRING:
+            /* Print string value */
             printf("\"%s\"", node->value.text_value);
             break;
-
         case NODE_SYMBOL:
+            /* Print symbol value */
             printf("%s", node->value.text_value);
             break;
-
         case NODE_LIST:
+            /* Print list of nodes */
             printf("(");
             for (i = 0; i < node->value.list.count; i++) {
                 if (i > 0) {
@@ -133,7 +98,6 @@ void print_node(Node* node) {
             }
             printf(")");
             break;
-
         default:
             printf("UNKNOWN_NODE");
             break;
@@ -141,45 +105,48 @@ void print_node(Node* node) {
 }
 
 /**
- * Prints a value for debugging
+ * Prints the passed value for prints in all modes
  */
 void print_value(const Value* value) {
-    if (value->type == VALUE_NIL) {
+    /* Check for NULL value */
+    if (!value) {
         printf("NIL");
-    }
-    else if (value->type == VALUE_T) {
-        printf("T");
-    }
-    else if (value->type == VALUE_BREAK) {
-        printf("BREAK");
-    }
-    else if (value->type == VALUE_INT) {
-        printf("%ld", value->data.int_value);
-    }
-    else if (value->type == VALUE_LIST) {
-        print_node(value->data.list_node);
-    }
-    else if (value->type == VALUE_SYMBOL) {
-        printf("%s", value->data.string_value);
-    }
-    else {
-        printf("\"%s\"", value->data.string_value);
-    }
-}
-
-/**
- * Print variables in the environment
- */
-void print_env(const Env* env) {
-    int i;
-
-    printf("Variables in the environment:");
-    printf("\n");
-
-    for (i = 0; i < env->count; i++) {
-        printf("%s: ", env->names[i]);
-        print_value(env->values[i]);
-        printf("\n");
+        return;
     }
 
+    /* Print based on the value type */
+    switch (value->type) {
+        case VALUE_NIL:
+            /* Print NIL representation */
+            printf("NIL");
+            break;
+        case VALUE_T:
+            /* Print True representation */
+            printf("T");
+            break;
+        case VALUE_BREAK:
+            /* Print Break representation */
+            printf("BREAK");
+            break;
+        case VALUE_INT:
+            /* Print integer value */
+            printf("%ld", value->data.int_value);
+            break;
+        case VALUE_STRING:
+            /* Print string value with quotes */
+            printf("\"%s\"", value->data.string_value);
+            break;
+        case VALUE_SYMBOL:
+            /* Print symbol name without quotes */
+            printf("%s", value->data.string_value);
+            break;
+        case VALUE_LIST:
+            /* Print the list using the node printer */
+            print_node(value->data.list_node);
+            break;
+        default:
+            /* Fallback for unknown value types */
+            printf("UNKNOWN_VALUE");
+            break;
+    }
 }

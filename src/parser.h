@@ -1,13 +1,11 @@
-/*
-* Created by Tomáš Rybák on 03.11.2025.
-*/
 
 #ifndef C_SW_PARSER_H
 #define C_SW_PARSER_H
 
-struct Tokenizer;
-struct Token;
-struct Node;
+struct Tokenizer; /* Forward declaration of Tokenizer structure */
+struct Token; /* Forward declaration of Token structure */
+struct Node; /* Forward declaration of Node structure */
+
 /**
  * Parse a single expression from the tokenizer
  * @param tokenizer Token reader

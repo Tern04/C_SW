@@ -1,11 +1,8 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
 
 #ifndef C_SW_VALUE_H
 #define C_SW_VALUE_H
 
-struct Node;
+struct Node; /* Forward declaration of Node structure */
 
 /* Types of values */
 typedef enum ValueType{

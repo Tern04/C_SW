@@ -1,14 +1,10 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
 
 #ifndef C_SW_EVAL_H
 #define C_SW_EVAL_H
 
-struct Node;
-struct Value;
-struct Env;
-
+struct Node; /* Forward declaration of Node structure */
+struct Value; /* Forward declaration of Value structure */
+struct Env; /* Forward declaration of Env structure */
 
 /**
  * Main evaluation function

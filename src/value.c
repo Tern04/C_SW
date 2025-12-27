@@ -1,14 +1,11 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
 
 #include <stdlib.h>
 #include <string.h>
 
 #include "parser.h"
 #include "s_exp.h"
+#include "errors.h"
 #include "value.h"
-
 
 /*
  * Creates a new value for an integer
@@ -20,6 +17,7 @@ Value* create_int_value(const long int_value) {
 
     /* Check for allocation failure */
     if (!value) {
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for integer value");
         return NULL;
     }
 
@@ -41,6 +39,7 @@ Value* create_string_value(const char* string_value) {
 
     /* Check for allocation failure */
     if (!value) {
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for string value");
         return NULL;
     }
 
@@ -50,6 +49,7 @@ Value* create_string_value(const char* string_value) {
     /* Check for allocation failure */
     if (!text) {
         free(value); /* Free the value structure */
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for string value");
         return NULL;
     }
     strcpy(text, string_value); /* Copy the string value */
@@ -72,6 +72,7 @@ Value* create_symbol_value(const char* symbol_value) {
 
     /* Check for allocation failure */
     if (!value) {
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for symbol value");
         return NULL;
     }
 
@@ -81,6 +82,7 @@ Value* create_symbol_value(const char* symbol_value) {
     /* Check for allocation failure */
     if (!text) {
         free(value); /* Free the value structure */
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for symbol value");
         return NULL;
     }
     strcpy(text, symbol_value); /* Copy the symbol name */
@@ -101,6 +103,7 @@ Value* create_list_value(Node* node) {
 
     /* Check for allocation failure */
     if (!value) {
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for list value");
         return NULL;
     }
 
@@ -110,6 +113,7 @@ Value* create_list_value(Node* node) {
     /* Check for allocation failure */
     if (!value->data.list_node) {
         free(value); /* Free the value structure */
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for list value");
         return NULL;
     }
 
@@ -125,6 +129,7 @@ Value* create_break_value(void) {
 
     /* Check for allocation failure */
     if (!value) {
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for break value");
         return NULL;
     }
     value->type = VALUE_BREAK; /* Set the type to VALUE_BREAK */
@@ -142,6 +147,7 @@ Value* create_t_value(void) {
 
     /* Check for allocation failure */
     if (!value) {
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for T value");
         return NULL;
     }
 
@@ -160,6 +166,7 @@ Value* create_nil_value(void) {
 
     /* Check for allocation failure */
     if (!value) {
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for NIL value");
         return NULL;
     }
     value->type = VALUE_NIL; /* Set the type to VALUE_NIL */

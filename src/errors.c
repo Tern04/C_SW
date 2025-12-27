@@ -1,11 +1,8 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
-
-#include "errors.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "errors.h"
 
 /*
  * Print an error message based on the error type

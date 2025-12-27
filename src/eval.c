@@ -1,6 +1,3 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
 
 #include <stddef.h>
 #include <stdio.h>
@@ -13,8 +10,6 @@
 #include "errors.h"
 #include "parser.h"
 #include "eval.h"
-
-
 
 /*
  * Main evaluation function

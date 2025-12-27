@@ -1,12 +1,9 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
-
-#include "file_io.h"
-#include "errors.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "errors.h"
+#include "file_io.h"
 
 /*
  * Reads the file and return it as a dynamically allocated string

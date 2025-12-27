@@ -1,14 +1,10 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
 
 #ifndef C_SW_UTILS_H
 #define C_SW_UTILS_H
 
-#include "env.h"
-#include "tokenizer.h"
-#include "s_exp.h"
-#include "value.h"
+/* Forward declaration of structures */
+struct Node; /* AST node */
+struct Value; /* Value structure */
 
 /**
  * Skips all whitespaces in the input
@@ -28,36 +24,18 @@ void string_to_uppercase(char* input);
  * @param ast AST node to be checked
  * @return 1 if it is a PRINT call, 0 otherwise
  */
-int is_print_call(const Node* ast);
+int is_print_call(const struct Node* ast);
 
 /**
- * Print a token's type and value for debugging
- * @param token Token for printing
- */
-void print_token(Token token);
-
-/**
- * Print the AST node for debugging
+ * Print the AST node for printing function
  * @param node Node to be printed
  */
-void print_node(Node* node);
+void print_node(struct Node* node);
 
 /**
- * Frees the rest of the allocated memory
- * @param file_content Content of the input file
- */
-void program_cleanup(char* file_content);
-
-/**
- * Prints a value for debugging
+ * Prints the passed value for prints in all interpret modes
  * @param value value to be printed
  */
-void print_value(const Value* value);
-
-/**
- * Print variables in the environment
- * @param env Environment with variables
- */
-void print_env(const Env* env);
+void print_value(const struct Value* value);
 
 #endif /* C_SW_UTILS_H */

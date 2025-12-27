@@ -5,8 +5,7 @@
 #ifndef C_SW_S_EXP_H
 #define C_SW_S_EXP_H
 
-/* Forward declaration of Value structure */
-struct Value;
+struct Value; /* Forward declaration of Value structure */
 
 /* Types of node */
 typedef enum NodeType{

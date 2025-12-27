@@ -1,11 +1,8 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
 
 #ifndef C_SW_ENV_H
 #define C_SW_ENV_H
 
-struct Value;
+struct Value; /* Forward declaration of Value structure */
 
 /* Structure for the environment that holds created variables from the lisp code */
 typedef struct Env{

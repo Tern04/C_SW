@@ -1,23 +1,29 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
-
-#include "s_exp.h"
-#include "value.h"
 
 #include <stdlib.h>
 #include <string.h>
+
+#include "value.h"
+#include "errors.h"
+#include "s_exp.h"
 
 /*
  * Create a new node with an integer value
  */
 Node* create_int_node(const long value) {
-    Node* node = malloc(sizeof(Node));
+    Node* node;
+
+    node = malloc(sizeof(Node));  /* Allocate memory for the node */
+
+    /* Check for allocation failure */
     if (!node) {
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for integer node");
         return NULL;
     }
+
+    /* Set the type and value */
     node->type = NODE_INT;
     node->value.int_value = value;
+
     return node;
 }
 
@@ -25,12 +31,34 @@ Node* create_int_node(const long value) {
  * Creates a new node with a string literal
  */
 Node* create_string_node(const char* text) {
-    Node* node = malloc(sizeof(Node));
+    Node* node;
+    char* text_copy;
+    size_t len;
+
+    node = malloc(sizeof(Node)); /* Allocate memory for the string node structure */
+
+    /* Check for allocation failure */
     if (!node) {
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for string node structure");
         return NULL;
     }
+
+    len = strlen(text) + 1; /* +1 for null terminator */
+    text_copy = malloc(len); /* Allocate memory for the string */
+
+    /* Check for allocation failure */
+    if (!text_copy) {
+        free(node); /* Free the previously allocated node */
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for string node text");
+        return NULL;
+    }
+
+    strcpy(text_copy, text); /* Copy the string value */
+
+    /* Set the type and value */
     node->type = NODE_STRING;
-    node->value.text_value = strdup(text);
+    node->value.text_value = text_copy;
+
     return node;
 }
 
@@ -38,12 +66,34 @@ Node* create_string_node(const char* text) {
  * Creates a new node with a symbol value
  */
 Node* create_symbol_node(const char* text) {
-    Node* node = malloc(sizeof(Node));
+    Node* node;
+    char* text_copy;
+    size_t len;
+
+    node = malloc(sizeof(Node)); /* Allocate memory for the string node structure */
+
+    /* Check for allocation failure */
     if (!node) {
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for string node structure");
         return NULL;
     }
+
+    len = strlen(text) + 1; /* +1 for null terminator */
+    text_copy = malloc(len); /* Allocate memory for the string */
+
+    /* Check for allocation failure */
+    if (!text_copy) {
+        free(node); /* Free the previously allocated node */
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for string node text");
+        return NULL;
+    }
+
+    strcpy(text_copy, text); /* Copy the string value */
+
+    /* Set the type and value */
     node->type = NODE_SYMBOL;
-    node->value.text_value = strdup(text);
+    node->value.text_value = text_copy;
+
     return node;
 }
 
@@ -51,13 +101,21 @@ Node* create_symbol_node(const char* text) {
  * Creates a new empty list node
  */
 Node* create_list_node(void) {
-    Node* node = malloc(sizeof(Node));
+    Node* node;
+
+    node = malloc(sizeof(Node)); /* Allocate memory for the list node structure */
+
+    /* Check for allocation failure */
     if (!node) {
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for list node structure");
         return NULL;
     }
+
+    /* Set the type and initialize the list */
     node->type = NODE_LIST;
     node->value.list.children = NULL;
     node->value.list.count = 0;
+
     return node;
 }
 
@@ -76,6 +134,7 @@ Node* create_node_copy(Node* node) {
     if (!node_copy) {
         return NULL;
     }
+
     node_copy->type = node->type; /* Copy the type of the node */
 
     /* Copy the value based on the type */
@@ -96,6 +155,7 @@ Node* create_node_copy(Node* node) {
                 free(text);
                 return NULL;
             }
+
             /* Copy the text value */
             strcpy(text, node->value.text_value);
             node_copy->value.text_value = text;
@@ -118,16 +178,15 @@ Node* create_node_copy(Node* node) {
                 return NULL;
             }
 
+            /* Create a copy of all children nodes */
             for (i = 0; i < node->value.list.count; i++) {
-                node_copy->value.list.children[i] = create_node_copy(node->value.list.children[i]); /* Create copy of all children nodes */
+                node_copy->value.list.children[i] = create_node_copy(node->value.list.children[i]);
             }
             break;
         default:
             break;
     }
-
     return node_copy;
-
 }
 
 /**
@@ -141,6 +200,7 @@ Node* create_node_from_value(Value* value) {
         return NULL;
     }
 
+    /* Create a node based on the value type */
     switch (value->type) {
         case VALUE_INT:
             return create_int_node(value->data.int_value); /* Create int node */
@@ -151,6 +211,7 @@ Node* create_node_from_value(Value* value) {
         case VALUE_NIL:
             return create_symbol_node("NIL"); /* Create NIL symbol node */
         case VALUE_LIST:
+
             /* Create a node from value data if it has them */
             if (value->data.list_node) {
                 return create_node_copy(value->data.list_node); /* Create a copy of the list node */
@@ -159,7 +220,6 @@ Node* create_node_from_value(Value* value) {
         default:
             return NULL;
     }
-
 }
 
 

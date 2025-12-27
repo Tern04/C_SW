@@ -1,7 +1,3 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,7 +7,7 @@
 #include "value.h"
 #include "utils.h"
 #include "buildins.h"
-
+#include "s_exp.h"
 #include "parser.h"
 
 /* Structure for mapping built-in function names to their types and implementations */

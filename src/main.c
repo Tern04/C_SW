@@ -1,6 +1,4 @@
-/*
-* Created by Tomáš Rybák on 19.10.2025.
-*/
+
 #include <sys/stat.h>
 #include <stdio.h>
 #include <string.h>
@@ -13,6 +11,8 @@
 #include "env.h"
 #include "errors.h"
 #include "eval.h"
+#include "s_exp.h"
+#include "value.h"
 
 /* Enum for program modes */
 typedef enum {
