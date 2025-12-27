@@ -6,6 +6,7 @@
 #include "s_exp.h"
 #include "tokenizer.h"
 #include "parser.h"
+#include "errors.h"
 
 
 /*
@@ -49,20 +50,20 @@ Node* parse_expression(Tokenizer* tokenizer) {
             token_cleanup(&token);
             return NULL;
         case TOKEN_ERROR:
-            printf("Syntax error, invalid token\n");
+            handle_error(ERR_SYNTAX_ERROR, "Invalid token");
             token_cleanup(&token);
             return NULL;
         case TOKEN_END:
             token_cleanup(&token);
             return NULL;
         default:
-            printf("Unexpected token type\n");
+            handle_error(ERR_SYNTAX_ERROR, "Unexpected token type");
             token_cleanup(&token);
             break;
     }
 
     if (node == NULL) {
-        printf("Parse error, value of node is NULL\n");
+        handle_error(ERR_SYNTAX_ERROR, "Parse error, value of node is NULL");
     }
 
     return node;
@@ -95,7 +96,7 @@ Node* parse_atom(const Token* token) {
             break;
 
         default:
-            fprintf(stderr, "Syntax error: unexpected atom token\n");
+            handle_error(ERR_SYNTAX_ERROR, "Unexpected atom token");
             break;
     }
 
@@ -122,7 +123,7 @@ Node* parse_list(Tokenizer* tokenizer) {
             break;
         }
         if (next.type == TOKEN_END) {
-            fprintf(stderr, "Syntax error: missing ')'\n");
+            handle_error(ERR_SYNTAX_ERROR, "Missing ')'");
             token_cleanup(&next);
             node_cleanup(list);
             return NULL;
@@ -155,7 +156,7 @@ void add_child_to_list(Node* list, Node* child) {
     );
 
     if (!temp) {
-        fprintf(stderr, "Memory allocation failed in add_child_to_list\n");
+        handle_error(ERR_OUT_OF_MEMORY, "Memory allocation failed in add_child_to_list");
         return;
     }
 

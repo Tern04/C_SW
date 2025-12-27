@@ -35,8 +35,7 @@ void run_interactive_mode(void) {
     Value* result;
     int was_printed;
 
-    /* Initialize env */
-    env = create_env();
+    env = create_env(); /* Initialize env */
 
     /* Check for memory allocation failure */
     if (!env) {
@@ -122,8 +121,7 @@ void run_batch_modes(char* file_content, const ProgramMode mode) {
     Token token;
     int was_printed;
 
-    /* Initialize env */
-    env = create_env();
+    env = create_env(); /* Initialize env */
 
     /* Check for memory allocation failure */
     if (!env) {
@@ -147,7 +145,7 @@ void run_batch_modes(char* file_content, const ProgramMode mode) {
         /* Parsing */
         ast = parse_expression(&tokenizer);
 
-        /* Nothing to parse - break */
+        /* Check for parsing errors */
         if (!ast) {
             token = tokenizer_get_token(&tokenizer);
 
@@ -241,6 +239,7 @@ int run(const char* program_name, const ProgramMode mode, const char* input_file
             break;
         case MODE_BATCH:
         case MODE_VERBOSE_BATCH:
+
             /* Load content from the input file */
             file_content = load_content_from_file(input_file);
 
@@ -272,13 +271,15 @@ int main(const int argc, char* argv[]) {
     const char* input_file = NULL;
     ProgramMode mode;
 
-    mode = setup(argc, argv, &input_file);
+    mode = setup(argc, argv, &input_file); /* Setup the program mode */
 
+    /* Handle error mode */
     if (mode == MODE_ERROR) {
         fprintf(stderr, "Usage: %s [input_file] [-v]\n", argv[0]);
         return 1;
     }
 
+    /* Run the interpreter in the selected mode */
     run(argv[0], mode, input_file);
 
     return 0;

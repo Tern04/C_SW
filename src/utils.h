@@ -23,6 +23,14 @@ void skip_whitespace(char** input);
 void string_to_uppercase(char* input);
 
 /**
+ * Checks whether the AST node represents a PRINT call
+ * Used in the main.c for verbose and interactive mode
+ * @param ast AST node to be checked
+ * @return 1 if it is a PRINT call, 0 otherwise
+ */
+int is_print_call(const Node* ast);
+
+/**
  * Print a token's type and value for debugging
  * @param token Token for printing
  */

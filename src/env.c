@@ -10,6 +10,8 @@
 #include "value.h"
 #include "env.h"
 
+#include "errors.h"
+
 
 /*
  * Create a new environment
@@ -18,6 +20,12 @@ Env* create_env(void) {
     Env* env;
 
     env = malloc(sizeof(Env)); /* Allocate memory for the environment structure */
+
+    /* Check for allocation failure */
+    if (!env) {
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for environment");
+        return NULL;
+    }
 
     /* Set initial values */
     env->names = NULL;
@@ -43,17 +51,19 @@ void setup_env(Env* env) {
     value_cleanup(nil); /* Free the NIL value structure */
 }
 
+/*
+ * Sets or rewrite variable in the environment
+ */
 void env_set_variable(Env* env, const char* name, Value* value) {
     int i;
     char** temp_names;
     Value** temp_values;
     char* temp_name;
 
-
-
     /* Check if the variable exists to rewrite its value */
     for (i = 0; i < env->count; i++) {
         if (strcmp(env->names[i], name) == 0) {
+
             /* Variable already exists, update its value */
             value_cleanup(env->values[i]); /* Free the old value */
             free(env->values[i]); /* Free the old value structure */
@@ -67,7 +77,7 @@ void env_set_variable(Env* env, const char* name, Value* value) {
 
     /* Check for allocation failure */
     if (!temp_names) {
-        fprintf(stderr, "Failed to allocate memory for names in the environment structure");
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for variable names");
         return;
     }
 
@@ -75,7 +85,7 @@ void env_set_variable(Env* env, const char* name, Value* value) {
 
     /* Check for allocation failure */
     if (!temp_values) {
-        fprintf(stderr, "Failed to allocate memory for values in the environment structure");
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for variable values");
         return;
     }
 
@@ -88,8 +98,7 @@ void env_set_variable(Env* env, const char* name, Value* value) {
 
     /* Check for allocation failure */
     if (temp_name == NULL) {
-        fprintf(stderr, "Error: Memory allocation for variable name failed\n");
-        return;
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for variable name");
     }
 
     /* Add new variable to the structure */

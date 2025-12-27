@@ -3,7 +3,7 @@
 */
 
 #include "file_io.h"
-
+#include "errors.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,16 +18,17 @@ char* load_content_from_file(const char* filename) {
     size_t size;
 
 
-    file = fopen(filename, "r");
+    file = fopen(filename, "r"); /* Try to open the file */
 
+    /* Test if the file was opened successfully */
     if (file == NULL) {
-        fprintf(stderr, "Error: Could not open file %s\n", filename);
+        handle_error(ERR_FILE_ACCESS_FAILURE, "Could not open file");
         return NULL;
     }
 
     /* Try to et to the end of the file */
     if (fseek(file, 0, SEEK_END) != 0) {
-        fprintf(stderr, "Error: Could not seek to end of file %s\n", filename);
+        handle_error(ERR_FILE_ACCESS_FAILURE, "Could not seek to end of file");
         fclose(file);
         return NULL;
     }
@@ -36,7 +37,7 @@ char* load_content_from_file(const char* filename) {
 
     /* Test if length retrieval was successful */
     if (length < 0) {
-        fprintf(stderr, "Error: Could not get length of file %s\n", filename);
+        handle_error(ERR_FILE_ACCESS_FAILURE, "Could not get length of file");
         fclose(file);
         return NULL;
     }
@@ -44,10 +45,10 @@ char* load_content_from_file(const char* filename) {
     rewind(file); /* Go back to the beginning of the file */
     content = malloc((size_t)length + 1); /* Allocate the size of a file and the null character*/
 
-    /* Test if the allocatin was successful */
+    /* Test if the allocation was successful */
     if (content == NULL) {
-        fprintf(stderr, "Error: Memory allocation failed\n");
         fclose(file);
+        handle_error(ERR_OUT_OF_MEMORY, "Memory allocation failed");
         return NULL;
     }
 

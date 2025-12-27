@@ -3,7 +3,6 @@
 */
 
 #include <stddef.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,9 +10,10 @@
 #include "value.h"
 #include "env.h"
 #include "buildins.h"
+#include "errors.h"
+#include "parser.h"
 #include "eval.h"
 
-#include "parser.h"
 
 
 /*
@@ -22,6 +22,7 @@
 Value* eval(Env* env, const Node* node) {
     Value* value;
 
+    /* Evaluate based on the node type */
     switch (node->type) {
         case NODE_INT:
             /* Create int value */
@@ -34,8 +35,10 @@ Value* eval(Env* env, const Node* node) {
         case NODE_SYMBOL:
             /* Lookup symbol in the environment */
             value = env_get_value(env, node->value.text_value);
+
+            /* Check if the symbol is defined */
             if (!value) {
-                printf("Error: symbol '%s' is not defined\n", node->value.text_value);
+                handle_error(ERR_RUNTIME_ERROR, "Symbol is not defined");
                 return create_nil_value();
             }
             return create_value_copy(value); /* Return a copy of the found value */
@@ -64,16 +67,18 @@ Value* eval_list(Env* env, const Node* node) {
         return create_nil_value();
     }
 
-    /* Check if the first element is valid */
-    first_elem = node->value.list.children[0];
+    first_elem = node->value.list.children[0]; /* Get the first element of the list */
+
+    /* The first element must be a symbol */
     if (first_elem->type != NODE_SYMBOL) {
-        printf("Error: first element of a list must be a symbol\n");
+        handle_error(ERR_SYNTAX_ERROR, "First element of a list must be a symbol");
         return create_nil_value();
     }
 
     /* Get a type of primitive function by the first element in the list */
     type = get_buildin_type(first_elem->value.text_value);
 
+    /* Handle the built-in function based on its type */
     switch (type) {
         /* Section 1 - special forms will be handled in eval.c */
         case BI_QUOTE:
@@ -94,24 +99,12 @@ Value* eval_list(Env* env, const Node* node) {
             return handle_brk();
 
         /* Section 2 - standard primitive functions will be handled in buildins.c */
-        case BI_ADD:
-        case BI_SUB:
-        case BI_MUL:
-        case BI_DIV:
-        case BI_MAX:
-        case BI_MIN:
-        case BI_EQ:
-        case BI_NEQ:
-        case BI_LT:
-        case BI_GT:
-        case BI_LTE:
-        case BI_GTE:
-        case BI_LIST:
-        case BI_ATOM:
-        case BI_CAR:
-        case BI_CDR:
-        case BI_NTH:
-        case BI_LENGTH:
+        case BI_ADD:  case BI_SUB:  case BI_MUL:
+        case BI_DIV:  case BI_MAX:  case BI_MIN:
+        case BI_EQ:   case BI_NEQ:  case BI_LT:
+        case BI_GT:   case BI_LTE:  case BI_GTE:
+        case BI_LIST: case BI_ATOM: case BI_CAR:
+        case BI_CDR:  case BI_NTH:  case BI_LENGTH:
         case BI_PRINT:
             args = handle_arguments(env, node, &args_count); /* Get arguments for the primitive function */
 
@@ -121,11 +114,11 @@ Value* eval_list(Env* env, const Node* node) {
 
             return result; /* Return the result from the primitive function */
 
-
         default:
-            printf("Error: Unknown or unimplemented function\n");
-            return create_nil_value();
+            /* Unknown primitive function */
+            handle_error(ERR_SYNTAX_ERROR, first_elem->value.text_value);
     }
+    return create_nil_value(); /* Return NIL on error */
 }
 
 /*
@@ -143,11 +136,12 @@ Value** handle_arguments(Env* env, const Node* node, int* args_count) {
 
     /* Check for allocation failure */
     if (!args) {
+        handle_error(ERR_RUNTIME_ERROR, "Memory allocation error for function arguments");
         return NULL;
     }
-
+    /* Evaluate all arguments */
     for (i = 0; i < count; i++) {
-        args[i] = eval(env, node->value.list.children[i + 1]); /* Evaluate each argument */
+        args[i] = eval(env, node->value.list.children[i + 1]);
     }
 
     return args;
@@ -161,23 +155,25 @@ Value* handle_quote(const Node* node) {
 
     /* Check for at least one argument */
     if (node->value.list.count < 2) {
-        printf("Error: quote requires at least one argument\n");
+        handle_error(ERR_SYNTAX_ERROR, "QUOTE requires at least one argument");
         return create_nil_value();
     }
 
-    argument = node->value.list.children[1];
+    argument = node->value.list.children[1]; /* Get the argument to be quoted */
 
+    /* Return the argument as a value without evaluation */
     switch (argument->type) {
         case NODE_INT:
-            return create_int_value(argument->value.int_value);
+            return create_int_value(argument->value.int_value); /* Return the integer value */
         case NODE_STRING:
-            return create_string_value(argument->value.text_value);
+            return create_string_value(argument->value.text_value); /* Return the string value */
         case NODE_SYMBOL:
-            return create_symbol_value(argument->value.text_value);
+            return create_symbol_value(argument->value.text_value); /* Return the symbol value */
         case NODE_LIST:
             return create_list_value(argument); /* Return the quoted expression as a list value */
         default:
-            printf("Error: quote requires a list, integer or string as an argument\n");
+            /* Unknown argument type */
+            handle_error(ERR_SYNTAX_ERROR, "QUOTE requires a list, integer or string as an argument");
             return create_nil_value();
     }
 
@@ -196,7 +192,7 @@ Value* handle_set(Env* env, const Node* node) {
 
     /* Check for two arguments - name and value */
     if (node->value.list.count != 3) {
-        printf("Error: SET expects exactly 2 arguments (name and value)\n");
+        handle_error(ERR_SYNTAX_ERROR, "SET expects exactly 2 arguments (name and value)");
         return create_nil_value();
     }
 
@@ -209,6 +205,7 @@ Value* handle_set(Env* env, const Node* node) {
 
     /* If it was a place, return the result */
     if (place_result != NULL) {
+
         /* Free the evaluated value as it is no longer necessary */
         value_cleanup(value);
         free(value);
@@ -219,7 +216,7 @@ Value* handle_set(Env* env, const Node* node) {
 
     /* Check if the name is found and if it is a string */
     if (!name_value || (name_value->type != VALUE_STRING && name_value->type != VALUE_SYMBOL)) {
-        printf("Error: set requires a symbol or a string as a variable name\n");
+        handle_error(ERR_SYNTAX_ERROR, "SET requires a symbol or a string as a variable name");
 
         /* Free the name value if it was allocated */
         if (name_value) {
@@ -279,6 +276,7 @@ Value* handle_place_set(Env* env, const Node* place_node, Value* new_value) {
 
     type = get_buildin_type(func_name); /* Get the built-in function type */
 
+    /* Handle based on the function type */
     switch (type) {
         case BI_NTH:
             /* Check for exactly three arguments */
@@ -291,6 +289,8 @@ Value* handle_place_set(Env* env, const Node* place_node, Value* new_value) {
 
             /* Check if the index is valid */
             if (!val_idx || val_idx->type != VALUE_INT) {
+
+                /* Free the index value if it was allocated */
                 if (val_idx) {
                     value_cleanup(val_idx);
                     free(val_idx);
@@ -324,6 +324,7 @@ Value* handle_place_set(Env* env, const Node* place_node, Value* new_value) {
             list_expr = place_node->value.list.children[1]; /* Get the list expression */
             break;
         default:
+            /* Not a place set */
             return NULL;
     }
 
@@ -337,7 +338,7 @@ Value* handle_place_set(Env* env, const Node* place_node, Value* new_value) {
 
     /* Check if the list value exists and is a list */
     if (!env_list_val || env_list_val->type != VALUE_LIST) {
-        printf("Error: %s is not a list or is undefined\n", list_expr->value.text_value);
+        handle_error(ERR_RUNTIME_ERROR, "Variable is not a list or is undefined");
         return create_nil_value();
     }
 
@@ -345,12 +346,15 @@ Value* handle_place_set(Env* env, const Node* place_node, Value* new_value) {
 
     /* Check for a valid index */
     if (index < 0 || index >= target_list_node->value.list.count) {
-        printf("Error: SET - index out of bounds\n");
+        handle_error(ERR_RUNTIME_ERROR, "SET - index out of bounds");
         return create_nil_value();
     }
 
-    node_cleanup(target_list_node->value.list.children[index]); /* Free the old node at the index */
-    target_list_node->value.list.children[index] = create_node_from_value(new_value); /* Set the new value at the index */
+    /* Free the old node at the index */
+    node_cleanup(target_list_node->value.list.children[index]);
+
+    /* Set the new value at the index */
+    target_list_node->value.list.children[index] = create_node_from_value(new_value);
 
     return create_value_copy(new_value);
 }
@@ -369,14 +373,16 @@ Value* handle_inc_dec(Env* env, const Node* node, const int flag) {
 
     /* Check for exactly two arguments */
     if (node->value.list.count != 3) {
-        printf("Error: Inc/Dec requires exactly two arguments\n");
+        handle_error(ERR_SYNTAX_ERROR, "INC/DEC requires exactly two arguments");
         return create_nil_value();
     }
 
-    /* Check for the variable name - must be a symbol */
+    /* Evaluate the name of the variable */
     name_value = eval(env, node->value.list.children[1]);
+
+    /* Check for the valid name */
     if (!name_value || (name_value->type != VALUE_STRING && name_value->type != VALUE_SYMBOL)) {
-        printf("Error: Variable name must be a symbol or string\n");
+        handle_error(ERR_SYNTAX_ERROR, "Variable name must be a symbol or string");
 
         /* Cleanup */
         if (name_value) {
@@ -392,7 +398,7 @@ Value* handle_inc_dec(Env* env, const Node* node, const int flag) {
 
     /* Check for integer argument */
     if (!argument || argument->type != VALUE_INT) {
-        printf("Error: Second argument must be an integer\n");
+        handle_error(ERR_SYNTAX_ERROR, "Second argument must be an integer");
 
         /* Cleanup name_value*/
         value_cleanup(name_value);
@@ -409,7 +415,7 @@ Value* handle_inc_dec(Env* env, const Node* node, const int flag) {
 
     /* Check if the variable exists and is an integer */
     if (!env_value || env_value->type != VALUE_INT) {
-        printf("Error: Variable '%s' is not a defined integer\n", name);
+        handle_error(ERR_RUNTIME_ERROR, "Variable is not a defined integer");
 
         /* Cleanup */
         value_cleanup(name_value);
@@ -426,6 +432,7 @@ Value* handle_inc_dec(Env* env, const Node* node, const int flag) {
     /* Save the new value back to the environment */
     env_set_variable(env, name, create_int_value(new_result));
 
+    /* Create the return value */
     return_value = create_int_value(new_result);
 
     /* Free the name_value and argument */
@@ -434,8 +441,7 @@ Value* handle_inc_dec(Env* env, const Node* node, const int flag) {
     value_cleanup(argument);
     free(argument);
 
-    /* Return a copy of the updated value */
-    return return_value;
+    return return_value; /* Return a copy of the updated value */
 }
 
 /*
@@ -447,11 +453,11 @@ Value* handle_if(Env* env, const Node* node) {
 
     /* Check for three or 4 arguments */
     if (node->value.list.count < 3 || node->value.list.count > 4) {
-        printf("Error: IF requires at least two arguments\n");
+        handle_error(ERR_SYNTAX_ERROR, "IF requires at least two arguments");
         return create_nil_value();
     }
 
-    condition = eval(env, node->value.list.children[1]);
+    condition = eval(env, node->value.list.children[1]); /* Evaluate the condition */
     is_true = condition->type != VALUE_NIL; /* Condition is true if not NIL */
 
     /* Free the condition value */
@@ -478,12 +484,13 @@ Value* handle_while(Env* env, const Node* node) {
 
     /* Check for at least three arguments */
     if (node->value.list.count < 3) {
-        printf("Error: WHILE requires condition and body\n");
+        handle_error(ERR_SYNTAX_ERROR, "WHILE requires condition and body");
         return create_nil_value();
     }
 
     result = create_nil_value(); /* Initialize result as NIL */
 
+    /* Loop while the condition is true */
     while (1) {
         condition = eval(env, node->value.list.children[1]); /* Evaluate the condition */
         is_true = condition->type != VALUE_NIL; /* Condition is true if not NIL */
@@ -492,20 +499,27 @@ Value* handle_while(Env* env, const Node* node) {
         value_cleanup(condition);
         free(condition);
 
+        /* Exit the loop if the condition is false */
         if (!is_true) {
-            break; /* Exit the loop if the condition is false */
+            break;
         }
 
         for (i = 2; i < node->value.list.count; i++) {
-            value_cleanup(result); /* Free previous result */
+
+            /* Free previous result */
+            value_cleanup(result);
             free(result);
+
             result = eval(env, node->value.list.children[i]); /* Evaluate each body expression */
 
             /* Exit the loop if break value */
             if (result->type == VALUE_BREAK) {
+
+                /* Free the break value */
                 value_cleanup(result);
                 free(result);
-                return create_nil_value();
+
+                return create_nil_value(); /* Return NIL on break */
             }
         }
     }
@@ -516,15 +530,15 @@ Value* handle_while(Env* env, const Node* node) {
  * Handles the BRK - break from the while loop
  */
 Value* handle_brk(void) {
-    return create_break_value();
+    return create_break_value(); /* Return the break value */
 }
 
 /*
  * Exits the program
  */
 void handle_quit(void) {
-    printf("Exiting the interpreter...\n");
-    exit(0);
+    printf("Exiting the interpreter...\n"); /* Print exit message */
+    exit(0); /* Exit the program */
 }
 
 /*
@@ -533,6 +547,7 @@ void handle_quit(void) {
 void arguments_cleanup(Value** args, const int count) {
     int i;
 
+    /* Check for NULL pointer */
     if (!args) {
         return;
     }

@@ -135,7 +135,7 @@ struct Value* prim_atom(BuildinType type, struct Value** args, int args_count);
 
 /**
  * Lisp car primitive function (car)
- * returns the first element of the list
+ * Returns the first element of the list
  * @param type Type of primitive function
  * @param args Array of argument values
  * @param args_count Number of arguments

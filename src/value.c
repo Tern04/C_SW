@@ -189,6 +189,7 @@ Value* create_value_copy(const Value* value) {
             break;
         case VALUE_BREAK:
             copy = create_break_value();
+            break;
         case VALUE_T:
             copy = create_t_value(); /* Create T value */
             break;

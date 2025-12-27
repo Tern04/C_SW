@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "tokenizer.h"
 
@@ -42,6 +43,26 @@ void string_to_uppercase(char* input) {
         }
         input++;
     }
+}
+
+/**
+ * Checks whether the AST node represents a PRINT call
+ * Used in the main.c for verbose and interactive mode
+ */
+int is_print_call(const Node* ast) {
+    Node* first;
+    int flag;
+
+    flag = 0; /* Default to not a PRINT call */
+
+    /* Check if the AST is a list and has at least one element */
+    if (ast && ast->type == NODE_LIST && ast->value.list.count > 0) {
+        first = ast->value.list.children[0]; /* Get the first element of the list */
+
+        /* Check if the first element is a symbol with the value "PRINT" */
+        flag = (first->type == NODE_SYMBOL && strcmp(first->value.text_value, "PRINT") == 0);
+    }
+    return flag;
 }
 
 /*

@@ -7,12 +7,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "parser.h"
+#include "errors.h"
 #include "value.h"
 #include "utils.h"
 #include "buildins.h"
 
+#include "parser.h"
 
+/* Structure for mapping built-in function names to their types and implementations */
 const BuildinMapping BUILTIN_TABLE[] = {
     /* Section for special form operators (eval.c) */
     {"QUOTE", BI_QUOTE, NULL},
@@ -62,7 +64,7 @@ BuildinType get_buildin_type(const char* name) {
         }
     }
 
-    return BI_UNKNOWN;
+    return BI_UNKNOWN; /* Unknown built-in function */
 }
 
 /*
@@ -71,21 +73,23 @@ BuildinType get_buildin_type(const char* name) {
 Value* call_prim_function(const BuildinType type, Value** args, const int args_count) {
     int i;
 
+    /* Look for the function in the table */
     for (i = 0; i < BUILTIN_COUNT; i++) {
         if (type == BUILTIN_TABLE[i].type) {
+            /* Call the function if it exists */
             if (BUILTIN_TABLE[i].function != NULL) {
                 return BUILTIN_TABLE[i].function(type, args, args_count);
             }
             break;
         }
     }
-    return create_nil_value();
+    return create_nil_value(); /* Return NIL on error */
 }
 
 /**
  * Lisp arithmetic functions (+, -, *, /)
  */
-Value* prim_arithmetics(BuildinType type , Value** args, const int args_count) {
+Value* prim_arithmetics(const BuildinType type , Value** args, const int args_count) {
     Value* result;
     long res;
     long first_arg;
@@ -93,59 +97,76 @@ Value* prim_arithmetics(BuildinType type , Value** args, const int args_count) {
 
     /* Check for at least one argument */
     if (args_count == 0) {
-        printf("Error: Arithmetic operations expects at least one argument\n");
+        handle_error(ERR_SYNTAX_ERROR, "Arithmetic functions expect at least one argument");
         return create_nil_value();
     }
 
     /* Check that all arguments are integers */
     for (i = 0; i < args_count; i++) {
         if (args[i]->type != VALUE_INT) {
-            printf("Error: Arithmetic functions expect integer arguments\n");
+            handle_error(ERR_SYNTAX_ERROR, "Arithmetic functions expect integer arguments");
             return create_nil_value();
         }
     }
 
-    first_arg = args[0]->data.int_value;
+    first_arg = args[0]->data.int_value; /* Store the first argument */
 
+    /* Perform the arithmetic operation based on the type */
     switch (type) {
         case BI_ADD:
-            res = 0;
+            res = 0; /* Initialize result to 0 */
+
+            /* Sum all arguments */
             for (i = 0; i < args_count; i++) {
                 res += args[i]->data.int_value;
             }
             break;
         case BI_SUB:
+            /* Handle unary negation */
             if (args_count == 1) {
                 res = -first_arg;
                 break;
             }
-            res = first_arg;
+
+            res = first_arg; /* Start with the first argument */
+
+            /* Subtract all subsequent arguments */
             for (i = 1; i < args_count; i++) {
                 res -= args[i]->data.int_value;
             }
             break;
         case BI_MUL:
-            res = 1;
+            res = 1; /* Initialize result to 1 */
+
+            /* Multiply all arguments */
             for (i = 0; i < args_count; i++) {
                 res *= args[i]->data.int_value;
             }
             break;
         case BI_DIV:
+            /* Check for at least two arguments */
             if (args_count < 2) {
-                printf("Error: Division needs at least two arguments\n");
+                handle_error(ERR_RUNTIME_ERROR, "Division needs at least two arguments");
                 return create_nil_value();
             }
-            res = first_arg;
+
+            res = first_arg; /* Start with the first argument */
+
+            /* Divide by all arguments */
             for (i = 1; i < args_count; i++) {
+
+                /* Check for division by zero */
                 if (args[i]->data.int_value == 0) {
-                    printf("Error: Division by zero\n");
+                    handle_error(ERR_RUNTIME_ERROR, "Division by zero");
                     return create_nil_value();
                 }
                 res /= args[i]->data.int_value;
             }
             break;
         case BI_MAX:
-            res = first_arg;
+            res = first_arg; /* Start with the first argument */
+
+            /* Find the maximum value */
             for (i = 1; i < args_count; i++) {
                 if (args[i]->data.int_value > res) {
                     res = args[i]->data.int_value;
@@ -153,7 +174,9 @@ Value* prim_arithmetics(BuildinType type , Value** args, const int args_count) {
             }
             break;
         case BI_MIN:
-            res = first_arg;
+            res = first_arg; /* Start with the first argument */
+
+            /* Find the minimum value */
             for (i = 1; i < args_count; i++) {
                 if (args[i]->data.int_value < res) {
                     res = args[i]->data.int_value;
@@ -161,19 +184,24 @@ Value* prim_arithmetics(BuildinType type , Value** args, const int args_count) {
             }
             break;
         default:
-            printf("Error: Unknown arithmetic operator\n");
+            /* Unknown operator */
+            handle_error(ERR_RUNTIME_ERROR, "Unknown arithmetic operator");
             return create_nil_value();
     }
+    /* Create and return the result value */
     result = create_int_value(res);
     return result;
 }
 
+/*
+ * Lisp print primitive function (print)
+ */
 Value* prim_print(const BuildinType type, Value** args, const int args_count) {
     (void) type; /* Type of function will not be used in this method */
 
     /* Check for exactly one argument */
     if (args_count != 1) {
-        printf("Error: PRINT expects exactly 1 argument\n");
+        handle_error(ERR_SYNTAX_ERROR, "PRINT expects exactly 1 argument");
         return create_nil_value();
     }
 
@@ -187,6 +215,9 @@ Value* prim_print(const BuildinType type, Value** args, const int args_count) {
     return create_value_copy(args[0]);
 }
 
+/*
+ * Lisp comparison primitive function (=, /=, <, >, <=, >=)
+ */
 Value* prim_compare(const BuildinType type, Value** args, const int args_count) {
     long a;
     long b;
@@ -196,7 +227,7 @@ Value* prim_compare(const BuildinType type, Value** args, const int args_count) 
 
     /* Check for at least two arguments */
     if (args_count == 0) {
-        printf("Error: Comparison operators expect at least one argument\n");
+        handle_error(ERR_SYNTAX_ERROR, "Comparison operators expect at least one argument");
         return create_nil_value();
     }
 
@@ -208,26 +239,31 @@ Value* prim_compare(const BuildinType type, Value** args, const int args_count) 
     /* Check that all arguments are integers */
     for (i = 0; i < args_count; i++) {
         if (args[i]->type != VALUE_INT) {
-            printf("Error: Comparison operators expect integer arguments\n");
+            handle_error(ERR_SYNTAX_ERROR, "Comparison operators expect integer arguments");
             return create_nil_value();
         }
     }
 
     /* Handle BIQ comparison type */
     if (type == BI_NEQ) {
+
+        /* Check for any equal arguments */
         for (i = 0; i < args_count - 1; i++) {
             for (j = i + 1; j < args_count; j++) {
+
+                /* If any two arguments are equal, return NIL */
                 if (args[i]->data.int_value == args[j]->data.int_value) {
                     return create_nil_value();
                 }
             }
         }
-        return create_t_value();
+        return create_t_value(); /* All arguments are different */
     }
 
+    /* Perform the comparison for other types */
     for (i = 0; i < args_count - 1; i++) {
-        a = args[i]->data.int_value;
-        b = args[i + 1]->data.int_value;
+        a = args[i]->data.int_value; /* Get the first argument */
+        b = args[i + 1]->data.int_value; /* Get the second argument */
 
         switch (type) {
             case BI_EQ:
@@ -246,9 +282,12 @@ Value* prim_compare(const BuildinType type, Value** args, const int args_count) 
                 res = a >= b;
                 break;
             default:
-                printf("Error: Unknown comparison operator\n");
+                /* Unknown operator */
+                handle_error(ERR_RUNTIME_ERROR, "Unknown comparison operator");
                 return create_nil_value();
         }
+
+        /* If any comparison fails, return NIL */
         if (!res) {
             return create_nil_value();
         }
@@ -259,7 +298,7 @@ Value* prim_compare(const BuildinType type, Value** args, const int args_count) 
 /*
  * Lisp list primitive function (list)
  */
-Value* prim_list(BuildinType type, Value** args, int args_count) {
+Value* prim_list(const BuildinType type, Value** args, const int args_count) {
     Value* result;
     Node* list;
     Node* child;
@@ -273,6 +312,7 @@ Value* prim_list(BuildinType type, Value** args, int args_count) {
 
     /* Check for allocation failure */
     if (!list->value.list.children) {
+        handle_error(ERR_OUT_OF_MEMORY, "Memory allocation failed at list");
         return create_nil_value();
     }
 
@@ -281,7 +321,10 @@ Value* prim_list(BuildinType type, Value** args, int args_count) {
         list->value.list.children[i] = child; /* Add child to the list */
     }
 
-    result = create_list_value(list); /* Create a value from the list node */
+    /* Create and return the list value */
+    result = create_list_value(list);
+
+    node_cleanup(list); /* Free the temporary list node */
 
     return result;
 }
@@ -294,7 +337,7 @@ Value* prim_atom(const BuildinType type, Value** args, const int args_count) {
 
     /* Check for exactly one argument */
     if (args_count != 1) {
-        printf("Error: ATOM expects exactly 1 argument\n");
+        handle_error(ERR_SYNTAX_ERROR, "ATOM expects exactly 1 argument");
         return create_nil_value();
     }
 
@@ -307,7 +350,7 @@ Value* prim_atom(const BuildinType type, Value** args, const int args_count) {
 
 /*
  * Lisp car primitive function (car)
- * returns the first element of the list
+ * Returns the first element of the list
  */
 Value* prim_car(const BuildinType type, Value** args, const int args_count) {
     Node* list;
@@ -316,7 +359,7 @@ Value* prim_car(const BuildinType type, Value** args, const int args_count) {
 
     /* Check for exactly one argument which must be a list or NIL */
     if (args_count != 1 || (args[0]->type != VALUE_LIST && args[0]->type != VALUE_NIL)) {
-        printf("Error: CAR expects exactly 1 argument - list\n");
+        handle_error(ERR_SYNTAX_ERROR, "CAR expects exactly 1 argument - list");
         return create_nil_value();
     }
 
@@ -338,9 +381,10 @@ Value* prim_car(const BuildinType type, Value** args, const int args_count) {
 /*
  * Lisp cdr primitive function (cdr)
  */
-Value* prim_cdr(const BuildinType type, Value** args, int args_count) {
+Value* prim_cdr(const BuildinType type, Value** args, const int args_count) {
     Node* list;
     Node* new_list;
+    Value* result;
     int count;
     int i;
 
@@ -348,7 +392,7 @@ Value* prim_cdr(const BuildinType type, Value** args, int args_count) {
 
     /* Check for exactly one argument which must be a list */
     if (args_count != 1 || (args[0]->type != VALUE_LIST && args[0]->type != VALUE_NIL)) {
-        printf("Error: CDR expects exactly 1 argument - list\n");
+        handle_error(ERR_SYNTAX_ERROR, "CDR expects exactly 1 argument - list");
         return create_nil_value();
     }
 
@@ -372,7 +416,7 @@ Value* prim_cdr(const BuildinType type, Value** args, int args_count) {
 
     /* Check for allocation failure */
     if (!new_list->value.list.children) {
-        printf("Error: Memory allocation failed at cdr\n");
+        handle_error(ERR_OUT_OF_MEMORY, "Memory allocation failed at cdr");
 
         /* Free the created list */
         free(new_list);
@@ -385,7 +429,11 @@ Value* prim_cdr(const BuildinType type, Value** args, int args_count) {
         new_list->value.list.children[i - 1] = create_node_copy(list->value.list.children[i]);
     }
 
-    return create_list_value(new_list);
+    result = create_list_value(new_list);
+
+    node_cleanup(new_list);
+
+    return result;
 }
 
 /*
@@ -401,7 +449,7 @@ Value* prim_nth(const BuildinType type, Value** args, const int args_count) {
     /* Check for exactly two arguments: integer and list OR NIL */
     if (args_count != 2 || args[0]->type != VALUE_INT ||
         (args[1]->type != VALUE_LIST && args[1]->type != VALUE_NIL)) {
-        printf("Error: NTH expects exactly 2 arguments - integer and list\n");
+        handle_error(ERR_SYNTAX_ERROR, "NTH expects exactly 2 arguments - integer and list");
         return create_nil_value();
        }
 
@@ -415,7 +463,7 @@ Value* prim_nth(const BuildinType type, Value** args, const int args_count) {
 
     /* Check for the valid index */
     if (index < 0 || index >= list->value.list.count) {
-        printf("Error: NTH index out of bounds\n");
+        handle_error(ERR_RUNTIME_ERROR, "NTH index out of bounds");
         return create_nil_value();
     }
 
@@ -430,7 +478,7 @@ Value* prim_length(const BuildinType type, Value** args, const int args_count) {
 
     /* Check for exactly one argument which must be a list or NIL */
     if (args_count != 1 || (args[0]->type != VALUE_LIST && args[0]->type != VALUE_NIL)) {
-        printf("Error: LENGTH expects exactly 1 argument - list\n");
+        handle_error(ERR_SYNTAX_ERROR, "LENGTH expects exactly 1 argument - list");
         return create_nil_value();
     }
 

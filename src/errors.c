@@ -11,13 +11,16 @@
  * Print an error message based on the error type
  */
 void handle_error(const ErrorType error_type, const char* details) {
-    const char* msg = "Unknown error";
+    const char* msg;
 
+    msg = "Unknown error"; /* Default message */
+
+    /* Determine the error message based on the error type */
     switch (error_type) {
         case ERR_NO_ERROR:
             return;
         case ERR_INVALID_INPUT_FILE:
-            msg = "Invalid input file or file not found";
+            msg = "Invalid input file or file not found. Usage";
             break;
         case ERR_SYNTAX_ERROR:
             msg = "Syntax error in Lisp source";
@@ -32,13 +35,15 @@ void handle_error(const ErrorType error_type, const char* details) {
             msg = "Runtime error during evaluation";
             break;
     }
-
+    /* Print the error message to stderr */
     fprintf(stderr, "ERROR %d\n", error_type);
     fprintf(stderr, "%s\n", msg);
+
+    /* Print additional details if provided */
     if (details) {
         fprintf(stderr, "Details: %s\n", details);
     }
 
-    exit(error_type);
+    exit(error_type); /* Exit the program with the error code */
 
 }

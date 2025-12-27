@@ -7,12 +7,12 @@
 
 /* Types of errors */
 typedef enum ErrorType {
-    ERR_NO_ERROR = 0,
-    ERR_INVALID_INPUT_FILE = 1,
-    ERR_SYNTAX_ERROR = 2,
-    ERR_FILE_ACCESS_FAILURE = 3,
-    ERR_OUT_OF_MEMORY = 4,
-    ERR_RUNTIME_ERROR = 5
+    ERR_NO_ERROR = 0, /* No error */
+    ERR_INVALID_INPUT_FILE = 1, /* Invalid input file */
+    ERR_SYNTAX_ERROR = 2, /* Syntax error in the source code */
+    ERR_FILE_ACCESS_FAILURE = 3, /* Failure to access a file */
+    ERR_OUT_OF_MEMORY = 4, /* Out of the memory error */
+    ERR_RUNTIME_ERROR = 5 /* Runtime error during evaluation */
 }ErrorType;
 
 /**
