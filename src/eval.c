@@ -13,7 +13,7 @@
 #include "buildins.h"
 #include "eval.h"
 
-
+#include "parser.h"
 
 
 /*
@@ -189,12 +189,30 @@ Value* handle_quote(const Node* node) {
 Value* handle_set(Env* env, const Node* node) {
     Value* name_value;
     Value* value;
+    Value* place_result;
+    Value* return_value;
+    Node* place_node;
     char* name;
 
     /* Check for two arguments - name and value */
     if (node->value.list.count != 3) {
         printf("Error: SET expects exactly 2 arguments (name and value)\n");
         return create_nil_value();
+    }
+
+    /* Check if the first argument is a place like (nth 0 arr) */
+    place_node = node->value.list.children[1]; /* Get the place node */
+
+    value = eval(env, node->value.list.children[2]);  /* Evaluate the value to be set */
+
+    place_result = handle_place_set(env, place_node, value); /* Try to handle a place set */
+
+    /* If it was a place, return the result */
+    if (place_result != NULL) {
+        /* Free the evaluated value as it is no longer necessary */
+        value_cleanup(value);
+        free(value);
+        return place_result;
     }
 
     name_value = eval(env, node->value.list.children[1]); /* Evaluate the name of the variable */
@@ -208,24 +226,133 @@ Value* handle_set(Env* env, const Node* node) {
             value_cleanup(name_value);
             free(name_value);
         }
+
+        /* Free the evaluated value */
+        value_cleanup(value);
+        free(value);
+
         return create_nil_value(); /* Return NIL on error */
     }
 
     /* The first argument is a variable name */
     name = name_value->data.string_value;
 
-    /* Evaluate the value to be set */
-    value = eval(env, node->value.list.children[2]);
-
     /* If it does not exist, create a new variable */
     env_set_variable(env, name, value);
+
+    return_value = create_value_copy(value); /* Create a copy of the set value to return */
 
     /* Free the name value */
     value_cleanup(name_value);
     free(name_value);
 
-    /* Return a copy of the set value */
-    return create_value_copy(value);
+    return return_value; /* Return a copy of the set value */
+}
+
+/*
+ * Handles setting a value to a place
+ * For instance (set (nth 0 arr) 10))
+ */
+Value* handle_place_set(Env* env, const Node* place_node, Value* new_value) {
+    BuildinType type;
+    Node* func_node;
+    char* func_name;
+    Node* list_expr;
+    Value* val_idx;
+    Value* env_list_val;
+    Node* target_list_node;
+    int index;
+
+    /* Check if the place_node is a list with at least two elements */
+    if (place_node->type != NODE_LIST || place_node->value.list.count < 2) {
+        return NULL;
+    }
+
+    func_node = place_node->value.list.children[0]; /* Get the function node */
+
+    /* Check if the function node is a symbol */
+    if (func_node->type != NODE_SYMBOL) {
+        return NULL;
+    }
+
+    func_name = func_node->value.text_value; /* Get the function name */
+
+    type = get_buildin_type(func_name); /* Get the built-in function type */
+
+    switch (type) {
+        case BI_NTH:
+            /* Check for exactly three arguments */
+            if (place_node->value.list.count != 3) {
+                return NULL;
+            }
+
+            /* Evaluate the index */
+            val_idx = eval(env, place_node->value.list.children[1]);
+
+            /* Check if the index is valid */
+            if (!val_idx || val_idx->type != VALUE_INT) {
+                if (val_idx) {
+                    value_cleanup(val_idx);
+                    free(val_idx);
+                }
+                return NULL;
+            }
+
+            /* Check if the index is an integer */
+            if (val_idx->type != VALUE_INT) {
+                value_cleanup(val_idx);
+                free(val_idx);
+                return NULL;
+            }
+
+            index = (int)val_idx->data.int_value; /* Get the index as an integer */
+
+            /* Free the index value */
+            value_cleanup(val_idx);
+            free(val_idx);
+
+            list_expr = place_node->value.list.children[2]; /* Get the list expression */
+            break;
+        case BI_CAR:
+            index = 0; /* CAR corresponds to index 0 */
+
+            /* Check for exactly two arguments */
+            if (place_node->value.list.count != 2) {
+                return NULL;
+            }
+
+            list_expr = place_node->value.list.children[1]; /* Get the list expression */
+            break;
+        default:
+            return NULL;
+    }
+
+    /* Check if the list expression is a symbol */
+    if (list_expr->type != NODE_SYMBOL) {
+        return create_nil_value();
+    }
+
+    /* Get the list value from the environment */
+    env_list_val = env_get_value(env, list_expr->value.text_value);
+
+    /* Check if the list value exists and is a list */
+    if (!env_list_val || env_list_val->type != VALUE_LIST) {
+        printf("Error: %s is not a list or is undefined\n", list_expr->value.text_value);
+        return create_nil_value();
+    }
+
+    target_list_node = env_list_val->data.list_node; /* Get the target list node */
+
+    /* Check for a valid index */
+    if (index < 0 || index >= target_list_node->value.list.count) {
+        printf("Error: SET - index out of bounds\n");
+        return create_nil_value();
+    }
+
+    node_cleanup(target_list_node->value.list.children[index]); /* Free the old node at the index */
+    target_list_node->value.list.children[index] = create_node_from_value(new_value); /* Set the new value at the index */
+
+    return create_value_copy(new_value);
 }
 
 /*

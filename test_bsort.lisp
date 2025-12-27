@@ -1,7 +1,7 @@
 (set 'arr '(5 1 7 3 2 6 4 9 8))
 (set 'len (length arr))
 (set 'swapped T)
-
+(print arr)
 (while swapped
     (set 'i 1)
     (set 'swapped nil)

@@ -51,6 +51,16 @@ struct Value* handle_quote(const struct Node* node);
 struct Value* handle_set(struct Env* env, const struct Node* node);
 
 /**
+ * Handles setting a value to a place
+ * For instance (set (nth 0 arr) 10))
+ * @param env Environment with variables
+ * @param place_node Node representing the place
+ * @param new_value New value to be set
+ * @return Value of the set operation
+ */
+struct Value* handle_place_set(struct Env* env, const struct Node* place_node, struct Value* new_value);
+
+/**
  * Handles the INC and DEC - Increment or decrement variable in the environment
  * Using one method for both operations to reduce code duplication
  * @param env Environment with variables
