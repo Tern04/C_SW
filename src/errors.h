@@ -2,6 +2,12 @@
 #ifndef C_SW_ERRORS_H
 #define C_SW_ERRORS_H
 
+/*
+ *Global pointers for cleanup during handle_error calls.
+ */
+extern struct Env* g_err_cleanup_env;
+extern struct Node* g_err_cleanup_ast;
+
 /* Types of errors */
 typedef enum ErrorType {
     ERR_NO_ERROR = 0, /* No error */

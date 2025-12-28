@@ -45,6 +45,8 @@ void run_interactive_mode(void) {
 
     setup_env(env); /* Setup global variables */
 
+    g_err_cleanup_env = env; /* Set global cleanup pointer */
+
     /* Print mode header */
     printf("--- LISP INTERPRETER INTERACTIVE MODE ---\n");
 
@@ -78,6 +80,8 @@ void run_interactive_mode(void) {
             continue;
         }
 
+        g_err_cleanup_ast = ast; /* Set global cleanup pointer */
+
         was_printed = is_print_call(ast); /* Check if the AST is a PRINT call */
 
         result = eval(env, ast); /* Evaluate the AST */
@@ -98,10 +102,13 @@ void run_interactive_mode(void) {
 
         /* Free the AST */
         node_cleanup(ast);
+
+        g_err_cleanup_ast = NULL; /* Reset global cleanup pointer */
         tokenizer_cleanup(&tokenizer);
 
     }
     env_cleanup(env); /* Cleanup environment */
+    g_err_cleanup_env = NULL; /* Reset global cleanup pointer */
 
     /* Print exit message */
     printf("--- EXITING INTERACTIVE MODE ---\n");
@@ -131,6 +138,8 @@ void run_batch_modes(char* file_content, const ProgramMode mode) {
 
     setup_env(env); /* Setup global variables */
 
+    g_err_cleanup_env = env; /* Set global cleanup pointer */
+
     /* Print mode header */
     if (mode == MODE_BATCH) {
         printf("--- LISP INTERPRETER BATCH MODE ---\n");
@@ -159,6 +168,8 @@ void run_batch_modes(char* file_content, const ProgramMode mode) {
             handle_error(ERR_SYNTAX_ERROR, "Failed to parse input file");
         }
 
+        g_err_cleanup_ast = ast; /* Set global cleanup pointer */
+
         was_printed = is_print_call(ast); /* Check if the AST is a PRINT call */
 
         value = eval(env, ast); /* Evaluate the AST */
@@ -178,11 +189,14 @@ void run_batch_modes(char* file_content, const ProgramMode mode) {
         free(value);
 
         node_cleanup(ast); /* Free the AST */
+        g_err_cleanup_ast = NULL; /* Reset global cleanup pointer */
     }
 
     /* Free tokenizer and environment */
     tokenizer_cleanup(&tokenizer);
     env_cleanup(env);
+
+    g_err_cleanup_env = NULL; /* Reset global cleanup pointer */
 
     /* Print exit message */
     printf("--- FINISHED ---\n");
