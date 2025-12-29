@@ -6,6 +6,7 @@
 #include "tokenizer.h"
 #include "errors.h"
 #include "parser.h"
+#include "value.h"
 
 /*
  * Parse a single expression from the tokenizer
@@ -15,6 +16,7 @@ Node* parse_expression(Tokenizer* tokenizer) {
     Node* node;
     Node* quote_list;
     Node* quoted_expr;
+    Value* err;
 
     node = NULL; /* Initialize node to NULL */
     token = tokenizer_get_token(tokenizer); /* Get the next token */
@@ -50,7 +52,11 @@ Node* parse_expression(Tokenizer* tokenizer) {
             return NULL;
         case TOKEN_ERROR:
             /* Handle error token */
-            handle_error(ERR_SYNTAX_ERROR, "Invalid token");
+                err = handle_error(ERR_SYNTAX_ERROR, "Invalid token");
+                if (err) {
+                    value_cleanup(err);
+                    free(err);
+                }
             token_cleanup(&token);
             return NULL;
         case TOKEN_END:
@@ -58,16 +64,14 @@ Node* parse_expression(Tokenizer* tokenizer) {
             return NULL;
         default:
             /* Unexpected token type */
-            handle_error(ERR_SYNTAX_ERROR, "Unexpected token type");
+                err = handle_error(ERR_SYNTAX_ERROR, "Unexpected token type");
+                if (err) {
+                    value_cleanup(err);
+                    free(err);
+                }
             token_cleanup(&token);
             break;
     }
-
-    /* Check if node was created successfully */
-    if (node == NULL) {
-        handle_error(ERR_SYNTAX_ERROR, "Parse error, value of node is NULL");
-    }
-
     return node;
 
 }
@@ -100,7 +104,13 @@ Node* parse_atom(const Token* token) {
             break;
         default:
             /* Unexpected token type */
-            handle_error(ERR_SYNTAX_ERROR, "Unexpected atom token");
+            {
+                Value* err = handle_error(ERR_SYNTAX_ERROR, "Unexpected atom token");
+                if (err) {
+                    value_cleanup(err);
+                    free(err);
+                }
+            }
             break;
     }
     return node;
@@ -131,7 +141,11 @@ Node* parse_list(Tokenizer* tokenizer) {
 
         /* Check for the end of input */
         if (next.type == TOKEN_END) {
-            handle_error(ERR_SYNTAX_ERROR, "Missing ')'"); /* Error: missing closing bracket */
+            Value* err = handle_error(ERR_SYNTAX_ERROR, "Missing ')'"); /* Error: missing closing bracket */
+            if (err) {
+                value_cleanup(err);
+                free(err);
+            }
             token_cleanup(&next); /* Clean up peeked token */
             node_cleanup(list); /* Free the list node */
             return NULL;
@@ -170,7 +184,11 @@ int add_child_to_list(Node* list, Node* child) {
 
     /* Check for allocation failure */
     if (!temp) {
-        handle_error(ERR_OUT_OF_MEMORY, "Memory allocation failed in add_child_to_list");
+        Value* err = handle_error(ERR_OUT_OF_MEMORY, "Memory allocation failed in add_child_to_list");
+        if (err) {
+            value_cleanup(err);
+            free(err);
+        }
         return 1; /* Allocation failure */
     }
 

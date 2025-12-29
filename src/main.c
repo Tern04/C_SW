@@ -83,13 +83,9 @@ int run_interactive_mode(void) {
 
         /* Check for parsing errors */
         if (!ast) {
-            result = handle_error(ERR_SYNTAX_ERROR, "Invalid expression or unknown characters");
-            if (result) {
-                value_cleanup(result);
-                free(result);
-            }
             tokenizer_cleanup(&tokenizer); /* Cleanup tokenizer */
-            continue;
+            exit_code = ERR_SYNTAX_ERROR; /* Set error code */
+            break;
         }
 
         was_printed = is_print_call(ast); /* Check if the AST is a PRINT call */
@@ -188,27 +184,23 @@ int run_batch_modes(char* file_content, const ProgramMode mode) {
 
     /* Main processing loop */
     while (1) {
+        /* Peek to check if we're at the end before parsing */
+        token = tokenizer_peek(&tokenizer);
+
+        /* If we reached the end of the file, exit the loop */
+        if (token.type == TOKEN_END) {
+            token_cleanup(&token);
+            break;
+        }
+        token_cleanup(&token);
+
         /* Parsing */
         ast = parse_expression(&tokenizer);
 
-        /* Check for parsing errors */
+        /* Check for parsing errors - parser already reported the error */
         if (!ast) {
-            token = tokenizer_get_token(&tokenizer);
-
-            /* If we reached the end of the file, exit the loop */
-            if (token.type == TOKEN_END) {
-                token_cleanup(&token);
-                break;
-            }
-
-            /* If there was an error during parsing, handle it */
-            token_cleanup(&token);
-            result = handle_error(ERR_SYNTAX_ERROR, "Failed to parse input file");
-            if (result) {
-                exit_code = (int)result->data.int_value;
-                value_cleanup(result);
-                free(result);
-            }
+            /* Parsing failed, exit with syntax error code */
+            exit_code = ERR_SYNTAX_ERROR;
             break;
         }
 
