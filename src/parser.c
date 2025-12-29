@@ -147,7 +147,11 @@ Node* parse_list(Tokenizer* tokenizer) {
             return NULL;
         }
 
-        add_child_to_list(list, child); /* Add the child to the list */
+        if (add_child_to_list(list, child) != 0) {
+            node_cleanup(child);
+            node_cleanup(list);
+            return NULL;
+        }
     }
     return list;
 }
@@ -155,7 +159,7 @@ Node* parse_list(Tokenizer* tokenizer) {
 /*
  * Add a child node to the list
  */
-void add_child_to_list(Node* list, Node* child) {
+int add_child_to_list(Node* list, Node* child) {
     Node** temp;
 
     /* Reallocate memory for the new child */
@@ -167,13 +171,15 @@ void add_child_to_list(Node* list, Node* child) {
     /* Check for allocation failure */
     if (!temp) {
         handle_error(ERR_OUT_OF_MEMORY, "Memory allocation failed in add_child_to_list");
-        return;
+        return 1; /* Allocation failure */
     }
 
     /* Add the new child to the list */
     list->value.list.children = temp;
     list->value.list.children[list->value.list.count] = child;
     list->value.list.count++;
+
+    return 0; /* Success */
 }
 
 /*

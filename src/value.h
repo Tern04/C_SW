@@ -12,6 +12,7 @@ typedef enum ValueType{
     VALUE_LIST, /* Arrays */
     VALUE_BREAK, /* Break value for while loops */
     VALUE_QUIT, /* Quit value for exiting the interpreter */
+    VALUE_ERROR, /* Error value */
     VALUE_T, /* True value */
     VALUE_NIL /* Nil value */
 }ValueType;
@@ -65,6 +66,13 @@ Value* create_break_value(void);
  * @return Quit value
  */
 Value* create_quit_value(void);
+
+/**
+ * Creates an error value
+ * @param error_code Error code to be set
+ * @return Error value
+ */
+Value* create_error_value(long error_code);
 
 /**
  * Creates a T value - True

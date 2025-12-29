@@ -29,10 +29,11 @@ struct Node* parse_list(struct Tokenizer* tokenizer);
 
 /**
  * Add a child node to the list
- * @param list list nodo to which the child will be added
+ * @param list list node to which the child will be added
  * @param child child node to be added to the parent node
+ * @return 0 on success, 1 on failure
  */
-void add_child_to_list(struct Node* list, struct Node* child);
+int add_child_to_list(struct Node* list, struct Node* child);
 
 /**
  * Frees the allocated memory of the node and its children

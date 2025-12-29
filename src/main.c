@@ -26,26 +26,34 @@ typedef enum {
  * Run the interactive mode of the interpreter
  * This mode allows users to input expressions line by line
  * After evaluation of each expression, the result is printed
+ * @return 0 on success, error code on failure
  */
-void run_interactive_mode(void) {
+int run_interactive_mode(void) {
     char input_line[1024];
     Tokenizer tokenizer;
     Node* ast;
     Env* env;
     Value* result;
     int was_printed;
+    int exit_code = 0;
 
     env = create_env(); /* Initialize env */
 
     /* Check for memory allocation failure */
     if (!env) {
-        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for the environment");
-        return;
+        result = handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for the environment");
+        if (result) {
+            exit_code = (int)result->data.int_value;
+            value_cleanup(result);
+            free(result);
+        }
+        return exit_code;
     }
 
-    setup_env(env); /* Setup global variables */
-
-    g_err_cleanup_env = env; /* Set global cleanup pointer */
+    if (setup_env(env) != 0) { /* Setup global variables */
+        env_cleanup(env);
+        return ERR_OUT_OF_MEMORY;
+    }
 
     /* Print mode header */
     printf("--- LISP INTERPRETER INTERACTIVE MODE ---\n");
@@ -75,12 +83,14 @@ void run_interactive_mode(void) {
 
         /* Check for parsing errors */
         if (!ast) {
-            handle_error(ERR_SYNTAX_ERROR, "Invalid expression or unknown characters");
+            result = handle_error(ERR_SYNTAX_ERROR, "Invalid expression or unknown characters");
+            if (result) {
+                value_cleanup(result);
+                free(result);
+            }
             tokenizer_cleanup(&tokenizer); /* Cleanup tokenizer */
             continue;
         }
-
-        g_err_cleanup_ast = ast; /* Set global cleanup pointer */
 
         was_printed = is_print_call(ast); /* Check if the AST is a PRINT call */
 
@@ -98,6 +108,16 @@ void run_interactive_mode(void) {
                 break;
             }
 
+            /* Check for ERROR value */
+            if (result->type == VALUE_ERROR) {
+                exit_code = (int)result->data.int_value;
+                value_cleanup(result);
+                free(result);
+                node_cleanup(ast);
+                tokenizer_cleanup(&tokenizer);
+                break;
+            }
+
             /* In interactive mode, always print the result unless it was printed by PRINT */
             if (!was_printed) {
                 print_value(result);
@@ -112,15 +132,15 @@ void run_interactive_mode(void) {
         /* Free the AST */
         node_cleanup(ast);
 
-        g_err_cleanup_ast = NULL; /* Reset global cleanup pointer */
         tokenizer_cleanup(&tokenizer);
 
     }
     env_cleanup(env); /* Cleanup environment */
-    g_err_cleanup_env = NULL; /* Reset global cleanup pointer */
 
     /* Print exit message */
     printf("--- EXITING INTERACTIVE MODE ---\n");
+
+    return exit_code;
 }
 
 /*
@@ -128,26 +148,34 @@ void run_interactive_mode(void) {
  * Input is read from a file and processed
  * In verbose mode, results are printed after each evaluation
  * In batch mode, only PRINT outputs are shown
+ * @return 0 on success, error code on failure
  */
-void run_batch_modes(char* file_content, const ProgramMode mode) {
+int run_batch_modes(char* file_content, const ProgramMode mode) {
     Tokenizer tokenizer;
     Node* ast;
     Env* env;
     Value* result;
     Token token;
     int was_printed;
+    int exit_code = 0;
 
     env = create_env(); /* Initialize env */
 
     /* Check for memory allocation failure */
     if (!env) {
-        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for the environment");
-        return;
+        result = handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for the environment");
+        if (result) {
+            exit_code = (int)result->data.int_value;
+            value_cleanup(result);
+            free(result);
+        }
+        return exit_code;
     }
 
-    setup_env(env); /* Setup global variables */
-
-    g_err_cleanup_env = env; /* Set global cleanup pointer */
+    if (setup_env(env) != 0) { /* Setup global variables */
+        env_cleanup(env);
+        return ERR_OUT_OF_MEMORY;
+    }
 
     /* Print mode header */
     if (mode == MODE_BATCH) {
@@ -172,12 +200,17 @@ void run_batch_modes(char* file_content, const ProgramMode mode) {
                 token_cleanup(&token);
                 break;
             }
+
             /* If there was an error during parsing, handle it */
             token_cleanup(&token);
-            handle_error(ERR_SYNTAX_ERROR, "Failed to parse input file");
+            result = handle_error(ERR_SYNTAX_ERROR, "Failed to parse input file");
+            if (result) {
+                exit_code = (int)result->data.int_value;
+                value_cleanup(result);
+                free(result);
+            }
+            break;
         }
-
-        g_err_cleanup_ast = ast; /* Set global cleanup pointer */
 
         was_printed = is_print_call(ast); /* Check if the AST is a PRINT call */
 
@@ -188,6 +221,15 @@ void run_batch_modes(char* file_content, const ProgramMode mode) {
             /* Check for QUIT value to exit */
             if (result->type == VALUE_QUIT) {
                 /* Free the result value and the AST*/
+                value_cleanup(result);
+                free(result);
+                node_cleanup(ast);
+                break;
+            }
+
+            /* Check for ERROR value */
+            if (result->type == VALUE_ERROR) {
+                exit_code = (int)result->data.int_value;
                 value_cleanup(result);
                 free(result);
                 node_cleanup(ast);
@@ -211,17 +253,16 @@ void run_batch_modes(char* file_content, const ProgramMode mode) {
         }
 
         node_cleanup(ast); /* Free the AST */
-        g_err_cleanup_ast = NULL; /* Reset global cleanup pointer */
     }
 
     /* Free tokenizer and environment */
     tokenizer_cleanup(&tokenizer);
     env_cleanup(env);
 
-    g_err_cleanup_env = NULL; /* Reset global cleanup pointer */
-
     /* Print exit message */
     printf("--- FINISHED ---\n");
+
+    return exit_code;
 }
 
 /*
@@ -264,14 +305,17 @@ ProgramMode setup(const int argc, char* argv[], const char** input_file) {
 /*
  * Run the interpreter in the selected mode
  * Calls the appropriate function based on the mode
+ * @return 0 on success, error code on failure
  */
 int run(const char* program_name, const ProgramMode mode, const char* input_file) {
     char* file_content = NULL;
+    int exit_code = 0;
+    Value* error_result;
 
     /* Switch based on the selected mode */
     switch (mode) {
         case MODE_INTERACTIVE:
-            run_interactive_mode(); /* Run interactive mode */
+            exit_code = run_interactive_mode(); /* Run interactive mode */
             break;
         case MODE_BATCH:
         case MODE_VERBOSE_BATCH:
@@ -281,11 +325,16 @@ int run(const char* program_name, const ProgramMode mode, const char* input_file
 
             /* Check for loading errors */
             if (!file_content) {
-                handle_error(ERR_INVALID_INPUT_FILE, input_file);
-                return 1;
+                error_result = handle_error(ERR_INVALID_INPUT_FILE, input_file);
+                if (error_result) {
+                    exit_code = (int)error_result->data.int_value;
+                    value_cleanup(error_result);
+                    free(error_result);
+                }
+                return exit_code;
             }
             /* Run batch or verbose batch mode */
-            run_batch_modes(file_content, mode);
+            exit_code = run_batch_modes(file_content, mode);
 
             free(file_content); /* Free the loaded file content */
             break;
@@ -294,7 +343,7 @@ int run(const char* program_name, const ProgramMode mode, const char* input_file
             fprintf(stderr, "Usage: %s [input_file] [-v]\n", program_name);
             return 1;
     }
-    return 0;
+    return exit_code;
 }
 
 /*
@@ -316,7 +365,5 @@ int main(const int argc, char* argv[]) {
     }
 
     /* Run the interpreter in the selected mode */
-    run(argv[0], mode, input_file);
-
-    return 0;
+    return run(argv[0], mode, input_file);
 }

@@ -156,6 +156,27 @@ Value* create_quit_value(void) {
     return value;
 }
 
+/*
+ * Creates an error value
+ */
+Value* create_error_value(const long error_code) {
+    Value* value;
+
+    value = malloc(sizeof(Value)); /* Allocate memory for the value structure */
+
+    /* Check for allocation failure */
+    if (!value) {
+        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for error value");
+        return NULL;
+    }
+
+    /* Set the type to VALUE_ERROR and store the error code */
+    value->type = VALUE_ERROR;
+    value->data.int_value = error_code;
+
+    return value;
+}
+
 /**
  * Creates a T value - True
  */
@@ -219,6 +240,9 @@ Value* create_value_copy(const Value* value) {
         case VALUE_QUIT:
             copy = create_quit_value();
             break;
+        case VALUE_ERROR:
+            copy = create_error_value(value->data.int_value);
+            break;
         case VALUE_T:
             copy = create_t_value(); /* Create T value */
             break;
@@ -270,6 +294,7 @@ void value_cleanup(Value* value) {
         case VALUE_INT:
         case VALUE_BREAK:
         case VALUE_QUIT:
+        case VALUE_ERROR:
         case VALUE_T:
         case VALUE_NIL:
             return; /* No allocated memory to free */

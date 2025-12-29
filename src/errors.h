@@ -2,11 +2,7 @@
 #ifndef C_SW_ERRORS_H
 #define C_SW_ERRORS_H
 
-/*
- *Global pointers for cleanup during handle_error calls.
- */
-extern struct Env* g_err_cleanup_env;
-extern struct Node* g_err_cleanup_ast;
+struct Value; /* Forward declaration of Value structure */
 
 /* Types of errors */
 typedef enum ErrorType {
@@ -19,10 +15,11 @@ typedef enum ErrorType {
 }ErrorType;
 
 /**
- * Print an error message based on the error type and exits the program
+ * Print an error message and return an error Value
  * @param error_type Type of the error
  * @param details Details about the error from the context
+ * @return Error value containing the error code
  */
-void handle_error(ErrorType error_type, const char* details);
+struct Value* handle_error(ErrorType error_type, const char* details);
 
 #endif /* C_SW_ERRORS_H */

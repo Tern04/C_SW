@@ -20,21 +20,23 @@ Env* create_env(void);
 /**
  * Setup of global variables - T and NIL
  * @param env Environment structure to be set up
+ * @return 0 on success, 1 on failure
  */
-void setup_env(Env* env);
+int setup_env(Env* env);
 
 /**
  * Sets or rewrite variable in the environment
  * @param env Pointer to an environment structure
  * @param name Name of the variable
  * @param value Value to be set
+ * @return 0 on success, 1 on failure
  */
-void env_set_variable(Env* env, const char* name, struct Value* value);
+int env_set_variable(Env* env, const char* name, struct Value* value);
 
 /**
  *
  * @param env Pointer to an environment structure
- * @param name Name of the varible
+ * @param name Name of the variable
  * @return Pointer to the found value or NULL
  */
 struct Value* env_get_value(const Env* env, const char* name);

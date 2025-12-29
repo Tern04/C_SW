@@ -52,7 +52,7 @@ TokenType tokenizer_process_token_type(const Tokenizer* tokenizer) {
     if (c == '\0') {
         return TOKEN_END;
     }
-    
+
     next = tokenizer->input[tokenizer->index + 1]; /* Next character */
 
     /* Determine the token type based on the current character */

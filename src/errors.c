@@ -2,19 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "value.h"
 #include "errors.h"
 
-#include "env.h"
-#include "parser.h"
-
-/* Definition of global cleanup pointers */
-struct Env* g_err_cleanup_env = NULL;
-struct Node* g_err_cleanup_ast = NULL;
-
 /*
- * Print an error message based on the error type
+ * Print an error message and return an error Value
  */
-void handle_error(const ErrorType error_type, const char* details) {
+Value* handle_error(const ErrorType error_type, const char* details) {
     const char* msg;
 
     msg = "Unknown error"; /* Default message */
@@ -22,7 +16,7 @@ void handle_error(const ErrorType error_type, const char* details) {
     /* Determine the error message based on the error type */
     switch (error_type) {
         case ERR_NO_ERROR:
-            return;
+            break;
         case ERR_INVALID_INPUT_FILE:
             msg = "Invalid input file or file not found. Usage";
             break;
@@ -48,16 +42,6 @@ void handle_error(const ErrorType error_type, const char* details) {
         fprintf(stderr, "Details: %s\n", details);
     }
 
-    /* Free all memory before exit */
-    if (g_err_cleanup_ast) {
-        node_cleanup(g_err_cleanup_ast); /* Free the AST */
-        g_err_cleanup_ast = NULL; /* Reset the pointer */
-    }
-    if (g_err_cleanup_env) {
-        env_cleanup(g_err_cleanup_env); /* Free the environment */
-        g_err_cleanup_env = NULL; /* Reset the pointer */
-    }
-
-    exit(error_type); /* Exit the program with the error code */
+    return create_error_value(error_type);
 
 }

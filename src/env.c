@@ -17,7 +17,6 @@ Env* create_env(void) {
 
     /* Check for allocation failure */
     if (!env) {
-        handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for environment");
         return NULL;
     }
 
@@ -32,23 +31,45 @@ Env* create_env(void) {
 /*
  * Setup of global variables - T and NIL
  */
-void setup_env(Env* env) {
+int setup_env(Env* env) {
     Value* t;
     Value* nil;
+    int result;
 
     t = create_t_value(); /* Create T value */
-    env_set_variable(env, "T", t); /* Set T variable in the environment */
-    value_cleanup(t); /* Free the T value structure */
+    if (!t) {
+        return 1; /* Allocation failure */
+    }
+
+    result = env_set_variable(env, "T", t); /* Set T variable in the environment */
+
+    if (result != 0) {
+        value_cleanup(t);
+        free(t);
+        return 1; /* Failed to set T */
+    }
 
     nil = create_nil_value(); /* Create NIL value */
-    env_set_variable(env, "NIL", nil); /* Set NIL variable in the environment */
-    value_cleanup(nil); /* Free the NIL value structure */
+
+    if (!nil) {
+        return 1; /* Allocation failure */
+    }
+
+    result = env_set_variable(env, "NIL", nil); /* Set NIL variable in the environment */
+
+    if (result != 0) {
+        value_cleanup(nil);
+        free(nil);
+        return 1; /* Failed to set NIL */
+    }
+
+    return 0; /* Success */
 }
 
 /*
  * Sets or rewrite variable in the environment
  */
-void env_set_variable(Env* env, const char* name, Value* value) {
+int env_set_variable(Env* env, const char* name, Value* value) {
     int i;
     char** temp_names;
     Value** temp_values;
@@ -62,7 +83,7 @@ void env_set_variable(Env* env, const char* name, Value* value) {
             value_cleanup(env->values[i]); /* Free the old value */
             free(env->values[i]); /* Free the old value structure */
             env->values[i] = value; /* Set the new value */
-            return;
+            return 0; /* Success */
         }
     }
 
@@ -72,7 +93,7 @@ void env_set_variable(Env* env, const char* name, Value* value) {
     /* Check for allocation failure */
     if (!temp_names) {
         handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for variable names");
-        return;
+        return 1; /* Allocation failure */
     }
 
     temp_values = realloc(env->values, sizeof(Value*) * (env->count + 1)); /* Make values bigger by the new variable */
@@ -80,7 +101,7 @@ void env_set_variable(Env* env, const char* name, Value* value) {
     /* Check for allocation failure */
     if (!temp_values) {
         handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for variable values");
-        return;
+        return 1; /* Allocation failure */
     }
 
     /* Replace names and values for the new one */
@@ -93,6 +114,7 @@ void env_set_variable(Env* env, const char* name, Value* value) {
     /* Check for allocation failure */
     if (temp_name == NULL) {
         handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for variable name");
+        return 1; /* Allocation failure */
     }
 
     /* Add new variable to the structure */
@@ -101,6 +123,7 @@ void env_set_variable(Env* env, const char* name, Value* value) {
     env->values[env->count] = value;
     env->count++;
 
+    return 0; /* Success */
 }
 
 Value* env_get_value(const Env* env, const char* name) {

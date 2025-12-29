@@ -93,15 +93,13 @@ Value* prim_arithmetics(const BuildinType type , Value** args, const int args_co
 
     /* Check for at least one argument */
     if (args_count == 0) {
-        handle_error(ERR_SYNTAX_ERROR, "Arithmetic functions expect at least one argument");
-        return create_nil_value();
+        return handle_error(ERR_SYNTAX_ERROR, "Arithmetic functions expect at least one argument");
     }
 
     /* Check that all arguments are integers */
     for (i = 0; i < args_count; i++) {
         if (args[i]->type != VALUE_INT) {
-            handle_error(ERR_SYNTAX_ERROR, "Arithmetic functions expect integer arguments");
-            return create_nil_value();
+            return handle_error(ERR_SYNTAX_ERROR, "Arithmetic functions expect integer arguments");
         }
     }
 
@@ -142,8 +140,7 @@ Value* prim_arithmetics(const BuildinType type , Value** args, const int args_co
         case BI_DIV:
             /* Check for at least two arguments */
             if (args_count < 2) {
-                handle_error(ERR_RUNTIME_ERROR, "Division needs at least two arguments");
-                return create_nil_value();
+                return handle_error(ERR_RUNTIME_ERROR, "Division needs at least two arguments");
             }
 
             res = first_arg; /* Start with the first argument */
@@ -153,8 +150,7 @@ Value* prim_arithmetics(const BuildinType type , Value** args, const int args_co
 
                 /* Check for division by zero */
                 if (args[i]->data.int_value == 0) {
-                    handle_error(ERR_RUNTIME_ERROR, "Division by zero");
-                    return create_nil_value();
+                    return handle_error(ERR_RUNTIME_ERROR, "Division by zero");
                 }
                 res /= args[i]->data.int_value;
             }
@@ -181,8 +177,7 @@ Value* prim_arithmetics(const BuildinType type , Value** args, const int args_co
             break;
         default:
             /* Unknown operator */
-            handle_error(ERR_RUNTIME_ERROR, "Unknown arithmetic operator");
-            return create_nil_value();
+            return handle_error(ERR_RUNTIME_ERROR, "Unknown arithmetic operator");
     }
     /* Create and return the result value */
     result = create_int_value(res);
@@ -197,8 +192,7 @@ Value* prim_print(const BuildinType type, Value** args, const int args_count) {
 
     /* Check for exactly one argument */
     if (args_count != 1) {
-        handle_error(ERR_SYNTAX_ERROR, "PRINT expects exactly 1 argument");
-        return create_nil_value();
+        return handle_error(ERR_SYNTAX_ERROR, "PRINT expects exactly 1 argument");
     }
 
     /* Print with a function from utils.c */
@@ -223,8 +217,7 @@ Value* prim_compare(const BuildinType type, Value** args, const int args_count) 
 
     /* Check for at least two arguments */
     if (args_count == 0) {
-        handle_error(ERR_SYNTAX_ERROR, "Comparison operators expect at least one argument");
-        return create_nil_value();
+        return handle_error(ERR_SYNTAX_ERROR, "Comparison operators expect at least one argument");
     }
 
     /* A single argument is always true */
@@ -235,8 +228,7 @@ Value* prim_compare(const BuildinType type, Value** args, const int args_count) 
     /* Check that all arguments are integers */
     for (i = 0; i < args_count; i++) {
         if (args[i]->type != VALUE_INT) {
-            handle_error(ERR_SYNTAX_ERROR, "Comparison operators expect integer arguments");
-            return create_nil_value();
+            return handle_error(ERR_SYNTAX_ERROR, "Comparison operators expect integer arguments");
         }
     }
 
@@ -279,8 +271,7 @@ Value* prim_compare(const BuildinType type, Value** args, const int args_count) 
                 break;
             default:
                 /* Unknown operator */
-                handle_error(ERR_RUNTIME_ERROR, "Unknown comparison operator");
-                return create_nil_value();
+                return handle_error(ERR_RUNTIME_ERROR, "Unknown comparison operator");
         }
 
         /* If any comparison fails, return NIL */
@@ -308,8 +299,7 @@ Value* prim_list(const BuildinType type, Value** args, const int args_count) {
 
     /* Check for allocation failure */
     if (!list->value.list.children) {
-        handle_error(ERR_OUT_OF_MEMORY, "Memory allocation failed at list");
-        return create_nil_value();
+        return handle_error(ERR_OUT_OF_MEMORY, "Memory allocation failed at list");
     }
 
     for (i = 0; i < args_count; i++) {
@@ -333,8 +323,7 @@ Value* prim_atom(const BuildinType type, Value** args, const int args_count) {
 
     /* Check for exactly one argument */
     if (args_count != 1) {
-        handle_error(ERR_SYNTAX_ERROR, "ATOM expects exactly 1 argument");
-        return create_nil_value();
+        return handle_error(ERR_SYNTAX_ERROR, "ATOM expects exactly 1 argument");
     }
 
     /* Everything except a list is an atom */
@@ -355,8 +344,7 @@ Value* prim_car(const BuildinType type, Value** args, const int args_count) {
 
     /* Check for exactly one argument which must be a list or NIL */
     if (args_count != 1 || (args[0]->type != VALUE_LIST && args[0]->type != VALUE_NIL)) {
-        handle_error(ERR_SYNTAX_ERROR, "CAR expects exactly 1 argument - list");
-        return create_nil_value();
+        return handle_error(ERR_SYNTAX_ERROR, "CAR expects exactly 1 argument - list");
     }
 
     /* Check for NIL which represents an empty list */
@@ -388,8 +376,7 @@ Value* prim_cdr(const BuildinType type, Value** args, const int args_count) {
 
     /* Check for exactly one argument which must be a list */
     if (args_count != 1 || (args[0]->type != VALUE_LIST && args[0]->type != VALUE_NIL)) {
-        handle_error(ERR_SYNTAX_ERROR, "CDR expects exactly 1 argument - list");
-        return create_nil_value();
+        return handle_error(ERR_SYNTAX_ERROR, "CDR expects exactly 1 argument - list");
     }
 
     /* Check for NIL which represents an empty list */
@@ -412,12 +399,10 @@ Value* prim_cdr(const BuildinType type, Value** args, const int args_count) {
 
     /* Check for allocation failure */
     if (!new_list->value.list.children) {
-        handle_error(ERR_OUT_OF_MEMORY, "Memory allocation failed at cdr");
-
         /* Free the created list */
         free(new_list);
 
-        return create_nil_value();
+        return handle_error(ERR_OUT_OF_MEMORY, "Memory allocation failed at cdr");
     }
 
     /* Copy all elements except the first one as a deep copy */
@@ -445,8 +430,7 @@ Value* prim_nth(const BuildinType type, Value** args, const int args_count) {
     /* Check for exactly two arguments: integer and list OR NIL */
     if (args_count != 2 || args[0]->type != VALUE_INT ||
         (args[1]->type != VALUE_LIST && args[1]->type != VALUE_NIL)) {
-        handle_error(ERR_SYNTAX_ERROR, "NTH expects exactly 2 arguments - integer and list");
-        return create_nil_value();
+        return handle_error(ERR_SYNTAX_ERROR, "NTH expects exactly 2 arguments - integer and list");
        }
 
     /* Check for NIL which represents an empty list */
@@ -459,8 +443,7 @@ Value* prim_nth(const BuildinType type, Value** args, const int args_count) {
 
     /* Check for the valid index */
     if (index < 0 || index >= list->value.list.count) {
-        handle_error(ERR_RUNTIME_ERROR, "NTH index out of bounds");
-        return create_nil_value();
+        return handle_error(ERR_RUNTIME_ERROR, "NTH index out of bounds");
     }
 
     return create_value_from_node(list->value.list.children[index]); /* Return n-th element as a value */
@@ -474,8 +457,7 @@ Value* prim_length(const BuildinType type, Value** args, const int args_count) {
 
     /* Check for exactly one argument which must be a list or NIL */
     if (args_count != 1 || (args[0]->type != VALUE_LIST && args[0]->type != VALUE_NIL)) {
-        handle_error(ERR_SYNTAX_ERROR, "LENGTH expects exactly 1 argument - list");
-        return create_nil_value();
+        return handle_error(ERR_SYNTAX_ERROR, "LENGTH expects exactly 1 argument - list");
     }
 
     /* Check for NIL which represents an empty list */
