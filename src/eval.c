@@ -392,7 +392,7 @@ Value* handle_place_set(Env* env, const Node* place_node, Value* new_value) {
  * Using one method for both operations to reduce code duplication
  */
 Value* handle_inc_dec(Env* env, const Node* node, const int flag) {
-    Value* name_value;
+    Node* name_node;
     Value* argument;
     Value* env_value;
     Value* return_value;
@@ -401,113 +401,79 @@ Value* handle_inc_dec(Env* env, const Node* node, const int flag) {
     long new_result;
     int result;
 
-    /* Check for exactly two arguments */
+    /* Check for exactly two arguments (function name + 2 args = count 3) */
     if (node->value.list.count != 3) {
         return handle_error(ERR_SYNTAX_ERROR, "INC/DEC requires exactly two arguments");
     }
 
-    /* Evaluate the name of the variable  */
-    name_value = eval(env, node->value.list.children[1]);
+    /* Get the first argument node directly from AST (the variable name) */
+    name_node = node->value.list.children[1];
 
-    /* Check for error/quit */
-    if (name_value && (name_value->type == VALUE_ERROR || name_value->type == VALUE_QUIT)) {
-        return name_value; /* Propagate error/quit */
+    /* According to spec, the first argument is the variable name */
+    if (name_node->type != NODE_SYMBOL) {
+        return handle_error(ERR_SYNTAX_ERROR, "First argument of INC/DEC must be a symbol (variable name)");
     }
 
-    /* Check for the valid name - must be a symbol */
-    if (!name_value || name_value->type != VALUE_SYMBOL) {
+    /* Use the name directly from the symbol node (already uppercase from tokenizer) */
+    name = name_node->value.text_value;
 
-        /* Cleanup */
-        if (name_value) {
-            value_cleanup(name_value);
-            free(name_value);
-        }
-        return handle_error(ERR_SYNTAX_ERROR, "Variable name must be a quoted symbol (e.g., 'a)");
-    }
+    /* Evaluate ONLY the second argument (the increment/decrement amount) */
+    argument = eval(env, node->value.list.children[2]);
 
-    name = name_value->data.string_value; /* Get the variable name */
-
-    argument = eval(env, node->value.list.children[2]); /* Evaluate the argument */
-
-    /* Check for error/quit */
+    /* Check for error/quit in evaluated argument */
     if (argument && (argument->type == VALUE_ERROR || argument->type == VALUE_QUIT)) {
-        value_cleanup(name_value);
-        free(name_value);
-        return argument; /* Propagate error/quit */
+        return argument;
     }
 
-    /* Check for integer argument */
+    /* Check for integer value in the second argument */
     if (!argument || argument->type != VALUE_INT) {
-
-        /* Cleanup name_value*/
-        value_cleanup(name_value);
-        free(name_value);
-
-        /* Cleanup argument */
         if (argument) {
             value_cleanup(argument);
             free(argument);
         }
-        return handle_error(ERR_SYNTAX_ERROR, "Second argument must be an integer");
+        return handle_error(ERR_SYNTAX_ERROR, "Second argument of INC/DEC must be an integer");
     }
 
-    env_value = env_get_value(env, name); /* Get the current value from the environment */
+    /* Get the current value from the environment using the variable name */
+    env_value = env_get_value(env, name);
 
     /* Check if the variable exists and is an integer */
     if (!env_value || env_value->type != VALUE_INT) {
-
-        /* Cleanup */
-        value_cleanup(name_value);
-        free(name_value);
         value_cleanup(argument);
         free(argument);
-
         return handle_error(ERR_RUNTIME_ERROR, "Variable is not a defined integer");
     }
 
-    /* Save the new result with increment or decrement */
+    /* Calculate the new value (flag is 1 for INC, -1 for DEC) */
     new_result = env_value->data.int_value + (argument->data.int_value * flag);
 
-    /* Save the new value back to the environment */
+    /* Create a new integer value structure */
     new_int_val = create_int_value(new_result);
-
-    /* Check for allocation failure */
     if (!new_int_val) {
-        /* Clean up */
-        value_cleanup(name_value);
-        free(name_value);
         value_cleanup(argument);
         free(argument);
-
-        return handle_error(ERR_OUT_OF_MEMORY, "Failed to create new integer value");
+        return handle_error(ERR_OUT_OF_MEMORY, "Failed to allocate memory for result");
     }
 
-    result = env_set_variable(env, name, new_int_val); /* Set the updated value */
+    /* Update the variable in the environment */
+    result = env_set_variable(env, name, new_int_val);
 
-    /* Check for error during setting the variable */
     if (result != 0) {
-        /* Clean up */
         value_cleanup(new_int_val);
         free(new_int_val);
-        value_cleanup(name_value);
-        free(name_value);
         value_cleanup(argument);
         free(argument);
-
-        return handle_error(ERR_RUNTIME_ERROR, "Failed to set variable");
+        return handle_error(ERR_RUNTIME_ERROR, "Failed to update variable in environment");
     }
 
-
-    /* Create the return value */
+    /* Create the final return value for the interpreter */
     return_value = create_int_value(new_result);
 
-    /* Free the name_value and argument */
-    value_cleanup(name_value);
-    free(name_value);
+    /* Cleanup temporary evaluated argument */
     value_cleanup(argument);
     free(argument);
 
-    return return_value; /* Return a copy of the updated value */
+    return return_value;
 }
 
 /*
