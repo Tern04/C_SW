@@ -47,12 +47,13 @@ TokenType tokenizer_process_token_type(const Tokenizer* tokenizer) {
     char next;
 
     c = tokenizer->input[tokenizer->index]; /* Current character */
-    next = tokenizer->input[tokenizer->index + 1]; /* Next character */
 
     /* Check for the end of input */
     if (c == '\0') {
         return TOKEN_END;
     }
+    
+    next = tokenizer->input[tokenizer->index + 1]; /* Next character */
 
     /* Determine the token type based on the current character */
     switch (c) {
