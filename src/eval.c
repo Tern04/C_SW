@@ -86,6 +86,7 @@ Value* eval_list(Env* env, const Node* node) {
             return handle_inc_dec(env, node, -1);
         case BI_QUIT:
             handle_quit();
+            return create_nil_value(); /* This line will never be reached */
         case BI_IF:
             return handle_if(env, node);
         case BI_WHILE:
