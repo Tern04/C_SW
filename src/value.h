@@ -11,6 +11,7 @@ typedef enum ValueType{
     VALUE_SYMBOL, /* Symbol value */
     VALUE_LIST, /* Arrays */
     VALUE_BREAK, /* Break value for while loops */
+    VALUE_QUIT, /* Quit value for exiting the interpreter */
     VALUE_T, /* True value */
     VALUE_NIL /* Nil value */
 }ValueType;
@@ -58,6 +59,12 @@ Value* create_list_value(struct Node* node);
  * @return Break value
  */
 Value* create_break_value(void);
+
+/**
+ * Creates a quit value - used to exit the interpreter
+ * @return Quit value
+ */
+Value* create_quit_value(void);
 
 /**
  * Creates a T value - True

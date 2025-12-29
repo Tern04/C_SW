@@ -85,8 +85,7 @@ Value* eval_list(Env* env, const Node* node) {
         case BI_DEC:
             return handle_inc_dec(env, node, -1);
         case BI_QUIT:
-            handle_quit();
-            return create_nil_value(); /* This line will never be reached */
+            return handle_quit();
         case BI_IF:
             return handle_if(env, node);
         case BI_WHILE:
@@ -530,11 +529,10 @@ Value* handle_brk(void) {
 }
 
 /*
- * Exits the program
+ * Handles the QUIT - exit from the interpreter
  */
-void handle_quit(void) {
-    printf("Exiting the interpreter...\n"); /* Print exit message */
-    exit(0); /* Exit the program */
+Value* handle_quit(void) {
+    return create_quit_value(); /* Return the quit value */
 }
 
 /*

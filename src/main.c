@@ -89,6 +89,15 @@ void run_interactive_mode(void) {
         /* Print the result if it was not printed by PRINT */
         if (result) {
 
+            /* Check for QUIT value to exit */
+            if (result->type == VALUE_QUIT) {
+                /* Free the result value and the AST*/
+                value_cleanup(result);
+                free(result);
+                node_cleanup(ast);
+                break;
+            }
+
             /* In interactive mode, always print the result unless it was printed by PRINT */
             if (!was_printed) {
                 print_value(result);
@@ -124,7 +133,7 @@ void run_batch_modes(char* file_content, const ProgramMode mode) {
     Tokenizer tokenizer;
     Node* ast;
     Env* env;
-    Value* value;
+    Value* result;
     Token token;
     int was_printed;
 
@@ -172,21 +181,34 @@ void run_batch_modes(char* file_content, const ProgramMode mode) {
 
         was_printed = is_print_call(ast); /* Check if the AST is a PRINT call */
 
-        value = eval(env, ast); /* Evaluate the AST */
+        result = eval(env, ast); /* Evaluate the AST */
 
-        /* In verbose modes, print the value unless it was already printed by PRINT */
-        if (mode == MODE_INTERACTIVE || mode == MODE_VERBOSE_BATCH) {
+        if (result) {
 
-            /* Print the result if it was not printed by PRINT */
-            if (!was_printed) {
-                print_value(value);
-                printf("\n");
+            /* Check for QUIT value to exit */
+            if (result->type == VALUE_QUIT) {
+                /* Free the result value and the AST*/
+                value_cleanup(result);
+                free(result);
+                node_cleanup(ast);
+                break;
             }
-        }
 
-        /* Free the evaluated value */
-        value_cleanup(value);
-        free(value);
+            /* In verbose modes, print the value unless it was already printed by PRINT */
+            if (mode == MODE_INTERACTIVE || mode == MODE_VERBOSE_BATCH) {
+
+                /* Print the result if it was not printed by PRINT */
+                if (!was_printed) {
+                    print_value(result);
+                    printf("\n");
+                }
+            }
+
+            /* Free the evaluated value */
+            value_cleanup(result);
+            free(result);
+
+        }
 
         node_cleanup(ast); /* Free the AST */
         g_err_cleanup_ast = NULL; /* Reset global cleanup pointer */

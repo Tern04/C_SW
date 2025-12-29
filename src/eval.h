@@ -89,9 +89,10 @@ struct Value* handle_while(struct Env* env, const struct Node* node);
 struct Value* handle_brk(void);
 
 /**
- * Exits the program
+ * Handles the QUIT - exit from the interpreter
+ * @return Quit value
  */
-void handle_quit(void);
+struct Value* handle_quit(void);
 
 /**
  * Frees allocated memory of arguments for primitive functions
