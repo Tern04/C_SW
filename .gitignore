@@ -15,3 +15,5 @@ untitled/.idea/workspace.xml
 .idea/modules.xml
 /.idea
 .DS_Store
+*.exe
+obj/
