@@ -1,4 +1,4 @@
-# C_SW — LISP Interpreter in C
+# Lisp Interpreter in C
 
 A complete, self-contained LISP interpreter written in C (C89/ANSI C). The interpreter supports interactive and batch execution modes, arithmetic and comparison operations, list manipulation, variable binding, control flow, and more.
 
@@ -23,7 +23,7 @@ A complete, self-contained LISP interpreter written in C (C89/ANSI C). The inter
 ## Project Structure
 
 ```
-C_SW/
+lisp-interpreter-c/
 ├── src/
 │   ├── main.c          # Entry point, execution modes
 │   ├── tokenizer.c/h   # Lexical analysis (tokenizer)
